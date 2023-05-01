@@ -1,13 +1,15 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 type AlertContentType = {
   color: 'red' | 'green' | 'blue' | 'yellow',
   message: string,
-  icon?: string,
+  icon?: keyof typeof Ionicons.glyphMap,
 }
 
 type AlertContextType = {
   isVisible: boolean
+  alertContent: AlertContentType
   setAlert: (content: AlertContentType) => void
   hideAlert: () => void
 }
@@ -33,8 +35,7 @@ const AlertContextProvider: React.FC<Props> = ({ children }) => {
 
   const value = {
     isVisible: showAlert,
-    message: alertContent?.message,
-    icon: alertContent?.icon,
+    alertContent: alertContent,
     setAlert: setAlert,
     hideAlert: hideAlert
   }

@@ -1,17 +1,43 @@
+import { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import Colors from "../utils/Colors";
+import { AlertContext } from "../store/context/alertContext";
 
-type Props = {
-  color: 'red' | 'green' | 'blue' | 'yellow',
-  message: string,
-  icon?: keyof typeof Ionicons.glyphMap,
-}
+const Alert = () => {
+  const { isVisible, alertContent, hideAlert } = useContext(AlertContext);
+  const offset = useSharedValue(-100);
 
-const Alert: React.FC<Props> = ({ color, message, icon }) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    const config = {
+      duration: 500
+    }
+    return {
+      transform: [{
+        translateY: withTiming(offset.value, config)
+      }]
+    }
+  }, [offset]);
+
+  useEffect(() => {
+    offset.value = 0
+    const timeout = setTimeout(() => {
+      offset.value = -100;
+    }, 5000);
+    const hideTimeout = setTimeout(() => {
+      hideAlert();
+    }, 5500);
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(hideTimeout);
+    }
+  }, []);
+
   const alertColor = () => {
-    switch (color) {
+    switch (alertContent.color) {
       case "red":
         return styles.red
       case "green":
@@ -24,12 +50,17 @@ const Alert: React.FC<Props> = ({ color, message, icon }) => {
         return null
     }
   }
+
+  if (!isVisible) {
+    return null
+  }
+
   return (
     <View style={styles.container}>
-      <View style={[styles.alert, alertColor()]}>
-        {icon && <Ionicons name={icon} size={20} color="white" style={styles.icon} />}
-        <Text style={styles.text}>{message}</Text>
-      </View>
+      <Animated.View style={[styles.alert, alertColor(), animatedStyle]}>
+        {alertContent.icon && <Ionicons name={alertContent.icon} size={20} color="white" style={styles.icon} />}
+        <Text style={styles.text}>{alertContent.message}</Text>
+      </Animated.View>
     </View>
   );
 }
@@ -43,13 +74,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: 10,
     left: 0,
+    zIndex: 9
   },
   alert: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '90%',
     borderRadius: 6,
-    padding: 16,
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 16
   },
   red: {
     backgroundColor: Colors.red500
@@ -67,6 +108,7 @@ const styles = StyleSheet.create({
     marginRight: 6
   },
   text: {
-    color: 'white'
+    fontSize: 12,
+    color: 'white',
   }
 });

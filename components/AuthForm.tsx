@@ -69,7 +69,7 @@ const AuthForm: React.FC<Props> = ({ isSignup }) => {
       const result = await signin(formState.email, formState.password);
       authenticate(result.token);
       navigation.navigate('Profile');
-      setAlert({ color: 'green', message: `Welcomeback!` });
+      setAlert({ color: 'green', message: `Hi ${result.name}, Welcome back!` });
     }
     setLoading(false);
   }
