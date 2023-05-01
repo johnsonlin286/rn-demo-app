@@ -1,13 +1,30 @@
-import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useContext, useState } from "react";
+import { StyleSheet, KeyboardAvoidingView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
 import InputField from "./InputField";
 import Button from "./Button";
+import { signup, signin } from "../api/auth";
+import { AuthContext } from "../store/context/authContext";
+import { AlertContext } from "../store/context/alertContext";
 
-function AuthForm(this: any) {
-  const [formState, setFormState] = useState({
-    email: '',
-    password: ''
-  });
+type FormType = {
+  name: string
+  email: string
+  password: string
+}
+
+type Props = {
+  isSignup?: boolean,
+}
+
+const AuthForm: React.FC<Props> = ({ isSignup }) => {
+  const navigation = useNavigation<any>();
+  const { authenticate } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
+  const [formState, setFormState] = useState<FormType>({} as FormType);
+  const [formError, setFormError] = useState<FormType>({} as FormType);
+  const [loading, setLoading] = useState(false);
 
   const updateFormState = (name: string, value: string) => {
     setFormState(prev => ({
@@ -16,12 +33,56 @@ function AuthForm(this: any) {
     }))
   }
 
+  const formValidation = () => {
+    const errMsg: FormType = {} as FormType;
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (isSignup && !formState.name) {
+      errMsg.name = 'required!';
+    } else if (isSignup && formState.name.length < 3) {
+      errMsg.name = 'minimum 3 characters lenght';
+    } else errMsg.name = '';
+    if (!formState.email) {
+      errMsg.email = 'required!';
+    } else if (!regex.test(formState.email)) {
+      errMsg.email = 'not a valid email';
+    } else errMsg.email = '';
+    if (!formState.password) {
+      errMsg.password = 'required!'
+    } else if (isSignup && formState.password.length < 6) {
+      errMsg.password = 'minimum 6 characters length'
+    } else errMsg.password = '';
+    setFormError(errMsg);
+    const hasError = Object.values(errMsg).map(item => item.trim().length > 0).includes(true);
+    if (hasError) {
+      return
+    }
+    formSubmit();
+  }
+
+  const formSubmit = async () => {
+    setLoading(true);
+    if (isSignup) {
+      const result = await signup(formState.name, formState.email, formState.password);
+      navigation.navigate('Signin');
+      setAlert({ color: 'green', message: `Your Account ${formState.email} successfully created!` });
+    } else {
+      const result = await signin(formState.email, formState.password);
+      authenticate(result.token);
+      navigation.navigate('Profile');
+      setAlert({ color: 'green', message: `Welcomeback!` });
+    }
+    setLoading(false);
+  }
+
   return (
-    <View style={styles.container}>
-      <InputField label="Email" type="email-address" value={formState.email} onChange={updateFormState.bind(this, 'email')} style={styles.input} />
-      <InputField label="Password" secure value={formState.password} onChange={updateFormState.bind(this, 'password')} style={styles.input} />
-      <Button title="Sign In" onPress={() => null} style={styles.button} />
-    </View>
+    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      {
+        isSignup && <InputField label="Name" value={formState.name} onChange={updateFormState.bind(this, 'name')} style={styles.input} isInvlid={formError.name} />
+      }
+      <InputField label="Email" type="email-address" value={formState.email} onChange={updateFormState.bind(this, 'email')} style={styles.input} isInvlid={formError.email} />
+      <InputField label="Password" secure value={formState.password} onChange={updateFormState.bind(this, 'password')} style={styles.input} isInvlid={formError.password} />
+      <Button title="Sign In" onPress={formValidation} style={styles.button} />
+    </KeyboardAvoidingView>
   );
 }
 

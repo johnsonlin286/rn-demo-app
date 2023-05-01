@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 
+import Layout from "../components/Layout";
 import AuthForm from "../components/AuthForm";
 import FlatButton from "../components/FlatBtn";
 
@@ -9,15 +10,17 @@ type Props = {
 
 const SigninScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <View style={styles.container}>
-      <AuthForm />
-      <View style={styles.textWrapper}>
-        <Text>
-          Create new
-        </Text>
-        <FlatButton style={styles.button} title="account" onPress={() => navigation.navigate('Signup')} />
+    <Layout>
+      <View style={styles.container}>
+        <AuthForm />
+        <View style={styles.textWrapper}>
+          <Text>
+            Create new
+          </Text>
+          <FlatButton style={styles.button} title="account" onPress={() => navigation.replace('Signup')} />
+        </View>
       </View>
-    </View>
+    </Layout>
   );
 }
 
@@ -34,9 +37,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 26,
+    marginBottom: 16
   },
   button: {
     marginLeft: 3,
-    marginTop: 2,
+    marginTop: 1,
   }
 })

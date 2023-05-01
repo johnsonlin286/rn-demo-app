@@ -10,8 +10,8 @@ type Props = {
 
 const Button: React.FC<Props> = ({ title, outline, onPress, style }) => {
   return (
-    <Pressable style={({ pressed }) => [styles.button, pressed ? styles.pressed : null, style]} onPress={onPress}>
-      <Text style={styles.text}>{title}</Text>
+    <Pressable style={({ pressed }) => [styles.button, outline ? styles.outline : null, pressed ? styles.pressed : null, style]} onPress={onPress}>
+      <Text style={[styles.text, outline ? styles.textOutline : null]}>{title}</Text>
     </Pressable>
   );
 }
@@ -35,6 +35,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 16
   },
+  outline: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: Colors.sky400
+  },
   pressed: {
     backgroundColor: Colors.sky600,
     elevation: 1,
@@ -44,5 +49,8 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     fontWeight: 'bold'
+  },
+  textOutline: {
+    color: Colors.sky400
   }
 });

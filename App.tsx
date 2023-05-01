@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,6 +12,8 @@ import SigninScreen from './screens/Signin';
 import SignupScreen from './screens/Signup';
 import DetailScreen from './screens/Detail';
 import ProfileScreen from './screens/Profile';
+import AuthContextProvider, { AuthContext } from './store/context/authContext';
+import AlertContextProvider from './store/context/alertContext';
 
 const Tabs = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -34,6 +37,8 @@ const AuthNavigation = () => {
 }
 
 const TabNavigation = () => {
+  const { isAuth } = useContext(AuthContext);
+
   return (
     <Tabs.Navigator screenOptions={{
       headerShown: false,
@@ -52,12 +57,22 @@ const TabNavigation = () => {
           <Ionicons name="add-circle" size={size} color={color} />
         )
       }} />
-      <Tabs.Screen name='Auth' component={AuthNavigation} options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="enter-outline" size={size} color={color} />
+      {
+        !isAuth ? (
+          <Tabs.Screen name='Auth' component={AuthNavigation} options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="enter-outline" size={size} color={color} />
+            )
+          }} />
+        ) : (
+          <Tabs.Screen name='Profile' component={ProfileScreen} options={{
+            headerShown: true,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person-circle" size={size} color={color} />
+            )
+          }} />
         )
-      }} />
-      {/* <Tabs.Screen name='Profile' component={ProfileScreen}/> */}
+      }
     </Tabs.Navigator>
   )
 }
@@ -66,9 +81,13 @@ export default function App() {
   return (
     <>
       <StatusBar style="auto" />
-      <NavigationContainer>
-        <TabNavigation />
-      </NavigationContainer>
+      <AuthContextProvider>
+        <AlertContextProvider>
+          <NavigationContainer>
+            <TabNavigation />
+          </NavigationContainer>
+        </AlertContextProvider>
+      </AuthContextProvider>
     </>
   );
 }
