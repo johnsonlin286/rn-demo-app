@@ -3,14 +3,14 @@ import { Text, View } from "react-native";
 import { AuthContext } from "../store/context/authContext";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
-type RootStackParamList = {
+type RootTabStackParamList = {
   Index: undefined;
   Form: undefined;
   Auth: undefined;
   Profile: undefined;
 }
 
-type Props = BottomTabScreenProps<RootStackParamList>;
+type Props = BottomTabScreenProps<RootTabStackParamList>;
 
 const FormScreen = ({ navigation }: Props) => {
   const { isAuth } = useContext(AuthContext);

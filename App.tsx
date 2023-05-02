@@ -18,14 +18,14 @@ import AlertContextProvider from './store/context/alertContext';
 import is24Hours from './utils/is24Hours';
 import Avatar from './components/Avatar';
 
-type RootStackParamList = {
+type RootTabStackParamList = {
   Index: undefined;
   Form: undefined;
   Auth: undefined;
   Profile: undefined;
 }
 
-const Tabs = createBottomTabNavigator<RootStackParamList>();
+const Tabs = createBottomTabNavigator<RootTabStackParamList>();
 const Stack = createNativeStackNavigator();
 
 const PostNavigation = () => {
@@ -78,7 +78,6 @@ const TabNavigation = () => {
           <Tabs.Screen name='Profile' component={ProfileScreen} options={{
             headerShown: true,
             tabBarIcon: ({ color, size }) => (
-              // <Ionicons name="person-circle" size={size} color={color} />
               <Avatar text={name || ''} />
             )
           }} />
