@@ -67,7 +67,7 @@ const AuthForm: React.FC<Props> = ({ isSignup }) => {
       setAlert({ color: 'green', message: `Your Account ${formState.email} successfully created!` });
     } else {
       const result = await signin(formState.email, formState.password);
-      authenticate(result.token);
+      authenticate(result.token, result.name);
       navigation.navigate('Profile');
       setAlert({ color: 'green', message: `Hi ${result.name}, Welcome back!` });
     }

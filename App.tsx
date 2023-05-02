@@ -16,8 +16,16 @@ import ProfileScreen from './screens/Profile';
 import AuthContextProvider, { AuthContext } from './store/context/authContext';
 import AlertContextProvider from './store/context/alertContext';
 import is24Hours from './utils/is24Hours';
+import Avatar from './components/Avatar';
 
-const Tabs = createBottomTabNavigator();
+type RootStackParamList = {
+  Index: undefined;
+  Form: undefined;
+  Auth: undefined;
+  Profile: undefined;
+}
+
+const Tabs = createBottomTabNavigator<RootStackParamList>();
 const Stack = createNativeStackNavigator();
 
 const PostNavigation = () => {
@@ -39,7 +47,7 @@ const AuthNavigation = () => {
 }
 
 const TabNavigation = () => {
-  const { isAuth } = useContext(AuthContext);
+  const { name, isAuth } = useContext(AuthContext);
 
   return (
     <Tabs.Navigator screenOptions={{
@@ -70,7 +78,8 @@ const TabNavigation = () => {
           <Tabs.Screen name='Profile' component={ProfileScreen} options={{
             headerShown: true,
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="person-circle" size={size} color={color} />
+              // <Ionicons name="person-circle" size={size} color={color} />
+              <Avatar text={name || ''} />
             )
           }} />
         )
@@ -82,17 +91,17 @@ const TabNavigation = () => {
 const Navigations = () => {
   const { authenticate } = useContext(AuthContext);
   useEffect(() => {
-    const getSavedToken = async () => {
-      const savedToken = await AsyncStorage.getItem('token');
-      if (savedToken) {
-        const storage = JSON.parse(savedToken);
+    const getSavedStorage = async () => {
+      const savedStorage = await AsyncStorage.getItem('user');
+      if (savedStorage) {
+        const storage = JSON.parse(savedStorage);
         const isLessThen24Hours = is24Hours(storage.created_at);
         if (!isLessThen24Hours) {
-          authenticate(savedToken);
+          authenticate(storage.token, storage.name);
         }
       }
     }
-    getSavedToken();
+    getSavedStorage();
   }, [])
   return (
     <NavigationContainer>

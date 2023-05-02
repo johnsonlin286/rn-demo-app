@@ -3,8 +3,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type AuthContext = {
   token: string | null,
+  name: string | null,
   isAuth: boolean,
-  authenticate: (token: string) => void
+  authenticate: (token: string, name: string) => void
   signout: () => void
 }
 
@@ -16,23 +17,28 @@ type Props = {
 
 const AuthContextProvider: React.FC<Props> = ({ children }) => {
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
-  const authenticate = (token: string) => {
+  const authenticate = (token: string, name: string) => {
     setAuthToken(token);
+    setUserName(name);
     const storage = {
       token: token,
+      name: name,
       created_at: new Date()
     }
-    AsyncStorage.setItem('token', JSON.stringify(storage))
+    AsyncStorage.setItem('user', JSON.stringify(storage))
   }
 
   const signout = () => {
-    setAuthToken(null)
-    AsyncStorage.removeItem('token');
+    setAuthToken(null);
+    setUserName(null);
+    AsyncStorage.removeItem('user');
   }
 
   const value = {
     token: authToken,
+    name: userName,
     isAuth: !!authToken,
     authenticate: authenticate,
     signout: signout
