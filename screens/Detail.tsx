@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Image, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { FlatList, Image, StyleSheet, useWindowDimensions } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { fetchPhoto } from "../api/posts";
 import Layout from "../components/Layout";
+import PostItem from "../components/PostItem";
 
 type RootStackParamList = {
   Home: undefined,
@@ -28,14 +29,14 @@ const DetailScreen = ({ route }: Props) => {
   const postId = useMemo(() => {
     return route?.params?.id;
   }, [route]);
-  const [data, setData] = useState<DataType>();
+  const [data, setData] = useState<Array<DataType>>();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetching = async () => {
       setLoading(true);
       const result = await fetchPhoto(postId);
-      setData(result);
+      setData(() => [result]);
       setLoading(false);
     }
 
@@ -43,20 +44,21 @@ const DetailScreen = ({ route }: Props) => {
   }, [postId]);
 
   return (
-    <Layout>
-      {
-        data && (
-          <Image source={{ uri: data.imageUrl }} style={[styles.image, { height: height / 4 }]} />
-        )
-      }
-    </Layout>
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item._id}
+      renderItem={({ item }) => <PostItem data={item} />}
+      style={styles.listContainer}
+    />
   );
 }
 
 export default DetailScreen;
 
 const styles = StyleSheet.create({
-  image: {
-    width: '100%',
+  listContainer: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   }
 });

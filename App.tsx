@@ -25,8 +25,15 @@ type RootTabStackParamList = {
   Profile: undefined;
 }
 
+type RootStackParamList = {
+  Home: undefined,
+  Detail: { id: string },
+  Signin: undefined,
+  Signup: undefined,
+}
+
 const Tabs = createBottomTabNavigator<RootTabStackParamList>();
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const PostNavigation = () => {
   return (
