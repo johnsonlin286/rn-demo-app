@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { FlatList, Image, StyleSheet, useWindowDimensions } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { fetchPhoto } from "../api/posts";
-import Layout from "../components/Layout";
 import PostItem from "../components/PostItem";
 
 type RootStackParamList = {
@@ -25,7 +24,6 @@ type DataType = {
 }
 
 const DetailScreen = ({ route }: Props) => {
-  const { height } = useWindowDimensions();
   const postId = useMemo(() => {
     return route?.params?.id;
   }, [route]);

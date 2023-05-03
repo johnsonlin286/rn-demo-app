@@ -1,5 +1,12 @@
+import { useContext, useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
+import Colors from "../utils/Colors";
+import { AuthContext } from "../store/context/authContext";
+import { likePost, dislikePost } from "../api/like";
 import IconBtn from "./IconBtn";
+import LikeBtn from "./LikeBtn";
 
 type UserType = {
   _id: string,
@@ -8,7 +15,7 @@ type UserType = {
 
 type LikesType = {
   _id: string,
-  user: UserType[],
+  user: UserType,
 }
 
 type Props = {
@@ -22,7 +29,41 @@ type Props = {
 }
 
 const PostItem: React.FC<Props> = ({ data }) => {
+  const navigation = useNavigation<any>();
+  const { isAuth, user: authUser } = useContext(AuthContext);
   const { _id, caption, imageUrl, likes, user } = data;
+  const [likesCount, setLikesCount] = useState<Array<LikesType>>([]);
+  const [liked, setLiked] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (likes) setLikesCount(likes);
+  }, [likes]);
+
+  useEffect(() => {
+    if (isAuth) {
+      likesCount.forEach(item => {
+        if (item.user._id === authUser?.id) {
+          setLiked(item._id);
+        }
+      })
+    }
+  }, [isAuth, authUser, likesCount, setLiked]);
+
+  const likeToggle = async () => {
+    if (!isAuth) {
+      navigation.navigate('Auth', { screen: 'Signin' });
+      return;
+    }
+    if (!liked) {
+      const like = await likePost(_id);
+      setLikesCount((prev) => [...prev, like]);
+      setLiked(like._id);
+    } else {
+      const dislike = await dislikePost(liked);
+      setLikesCount(() => likesCount.filter(like => like._id !== dislike._id));
+      setLiked(undefined);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -30,10 +71,14 @@ const PostItem: React.FC<Props> = ({ data }) => {
         <Image source={{ uri: imageUrl }} style={styles.image} />
       </View>
       <View style={styles.actions}>
-        <IconBtn icon="md-heart-outline" size={30} onPress={() => null} style={styles.actionsIconLike} />
-        <IconBtn icon="md-chatbubbles-outline" size={30} onPress={() => null} />
+        <LikeBtn defaultValue={liked ? true : false} onPress={likeToggle} />
+        <IconBtn icon="md-chatbubbles-outline" size={30} onPress={() => null} style={styles.actionsComment} />
       </View>
-      <Text style={styles.textLike}>{`${likes.length} Like${likes.length > 1 ? 's' : ''}`}</Text>
+      {
+        likesCount.length > 0 && (
+          <Text style={styles.textLike}>{`${likesCount.length} Like${likesCount.length > 1 ? 's' : ''}`}</Text>
+        )
+      }
       <View style={styles.caption}>
         <Text style={[styles.textCaption, styles.textName]}>{`${user.name} `}</Text>
         <Text style={styles.textCaption}>{caption}</Text>
@@ -48,6 +93,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     borderBottomWidth: 1,
+    borderBottomColor: Colors.gray300,
     paddingBottom: 16,
     marginBottom: 16,
   },
@@ -67,16 +113,16 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
   },
-  actionsIconLike: {
-    marginRight: 16,
+  actionsComment: {
+    marginLeft: 16,
   },
   textLike: {
     paddingLeft: 8,
-    marginBottom: 8,
   },
   caption: {
     flexDirection: 'row',
     paddingLeft: 8,
+    marginTop: 16,
   },
   textCaption: {
     fontStyle: 'italic',

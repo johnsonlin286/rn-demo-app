@@ -29,8 +29,7 @@ export const signin = async (email: string, password: string) => {
     query: `
         query Signin($email: String!, $password: String!) {
           signin(email: $email, password: $password), {
-            name
-            token
+            _id name email token
           }
         }
       `,
