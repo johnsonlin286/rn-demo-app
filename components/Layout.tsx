@@ -11,10 +11,10 @@ type Props = {
 const Layout: React.FC<Props> = ({ children }) => {
   const { isVisible } = useContext(AlertContext);
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       {isVisible && <Alert />}
       {children}
-    </ScrollView>
+    </View>
   );
 }
 

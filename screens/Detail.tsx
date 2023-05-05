@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { fetchPhoto } from "../api/posts";
 import PostItem from "../components/PostItem";
+import CommentsSheet from "../components/CommentsSheet";
 
 type RootStackParamList = {
   Home: undefined,
@@ -28,7 +29,8 @@ const DetailScreen = ({ route }: Props) => {
     return route?.params?.id;
   }, [route]);
   const [data, setData] = useState<Array<DataType>>();
-  const [loading, setLoading] = useState(false);
+  const [pickedPostId, setPickedPostId] = useState<string | undefined>();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetching = async () => {
@@ -41,13 +43,20 @@ const DetailScreen = ({ route }: Props) => {
     fetching();
   }, [postId]);
 
+  if (loading) {
+    return null
+  }
+
   return (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => item._id}
-      renderItem={({ item }) => <PostItem data={item} />}
-      style={styles.listContainer}
-    />
+    <>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
+        style={styles.listContainer}
+      />
+      <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+    </>
   );
 }
 

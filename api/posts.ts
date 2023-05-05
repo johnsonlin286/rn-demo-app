@@ -24,6 +24,7 @@ export const fetchAllPosts = async (isAuth: boolean, skip: number) => {
       return response?.photos;
     })
     .catch((error) => {
+      console.log(error.response);
       throw new Error(error);
     });
 };

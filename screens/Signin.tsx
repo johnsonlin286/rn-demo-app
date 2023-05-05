@@ -1,4 +1,5 @@
 import { StyleSheet, View, Text } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 import Layout from "../components/Layout";
 import AuthForm from "../components/AuthForm";
@@ -11,15 +12,17 @@ type Props = {
 const SigninScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <Layout>
-      <View style={styles.container}>
-        <AuthForm />
-        <View style={styles.textWrapper}>
-          <Text>
-            Create new
-          </Text>
-          <FlatButton style={styles.button} title="account" onPress={() => navigation.replace('Signup')} />
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.container}>
+          <AuthForm />
+          <View style={styles.textWrapper}>
+            <Text>
+              Create new
+            </Text>
+            <FlatButton style={styles.button} title="account" onPress={() => navigation.replace('Signup')} />
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </Layout>
   );
 }
@@ -27,6 +30,9 @@ const SigninScreen: React.FC<Props> = ({ navigation }) => {
 export default SigninScreen;
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     alignItems: 'center',

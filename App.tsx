@@ -14,7 +14,7 @@ import SignupScreen from './screens/Signup';
 import DetailScreen from './screens/Detail';
 import ProfileScreen from './screens/Profile';
 import AuthContextProvider, { AuthContext } from './store/context/authContext';
-import AlertContextProvider from './store/context/alertContext';
+import AlertContextProvider, { AlertContext } from './store/context/alertContext';
 import is24Hours from './utils/is24Hours';
 import Avatar from './components/Avatar';
 
@@ -96,6 +96,7 @@ const AuthNavigation = () => {
 
 const Navigations = () => {
   const { authenticate } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
   useEffect(() => {
     const getSavedStorage = async () => {
       const savedStorage = await AsyncStorage.getItem('user');
@@ -104,6 +105,10 @@ const Navigations = () => {
         const isLessThen24Hours = is24Hours(storage.created_at);
         if (!isLessThen24Hours) {
           authenticate(storage.token, storage.id, storage.name, storage.email);
+        } else {
+          await AsyncStorage.removeItem('user');
+          setAlert({ color: 'blue', message: 'session has expired' });
+          return;
         }
       }
     }

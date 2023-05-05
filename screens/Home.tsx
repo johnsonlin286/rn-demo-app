@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { AuthContext } from "../store/context/authContext";
 import { fetchAllPosts } from "../api/posts";
+import Layout from "../components/Layout";
 import ImageThumbnail from "../components/ImageThumbnail";
 
 type PostItemType = {
@@ -36,7 +37,7 @@ function HomeScreen() {
   }
 
   return (
-    <>
+    <Layout>
       {
         posts && (<FlatList
           data={posts}
@@ -50,7 +51,7 @@ function HomeScreen() {
           style={styles.listContainer}
         />)
       }
-    </>
+    </Layout>
   );
 }
 

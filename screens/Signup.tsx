@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 
 import Layout from "../components/Layout";
 import AuthForm from "../components/AuthForm";
@@ -11,15 +11,17 @@ type Props = {
 const SignupScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <Layout>
-      <View style={styles.container}>
-        <AuthForm isSignup />
-        <View style={styles.textWrapper}>
-          <Text>
-            Have an account?
-          </Text>
-          <FlatButton style={styles.button} title="account" onPress={() => navigation.replace('Signin')} />
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.container}>
+          <AuthForm isSignup />
+          <View style={styles.textWrapper}>
+            <Text>
+              Have an account?
+            </Text>
+            <FlatButton style={styles.button} title="account" onPress={() => navigation.replace('Signin')} />
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </Layout>
   );
 }
@@ -27,6 +29,9 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 export default SignupScreen;
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     alignItems: 'center',

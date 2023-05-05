@@ -25,10 +25,11 @@ type Props = {
     imageUrl: string,
     likes: LikesType[],
     user: UserType,
-  }
+  },
+  onLoadComments: (id: string) => void,
 }
 
-const PostItem: React.FC<Props> = ({ data }) => {
+const PostItem: React.FC<Props> = ({ data, onLoadComments }) => {
   const navigation = useNavigation<any>();
   const { isAuth, user: authUser } = useContext(AuthContext);
   const { _id, caption, imageUrl, likes, user } = data;
@@ -72,7 +73,7 @@ const PostItem: React.FC<Props> = ({ data }) => {
       </View>
       <View style={styles.actions}>
         <LikeBtn defaultValue={liked ? true : false} onPress={likeToggle} />
-        <IconBtn icon="md-chatbubbles-outline" size={30} onPress={() => null} style={styles.actionsComment} />
+        <IconBtn icon="md-chatbubbles-outline" size={30} onPress={onLoadComments.bind(this, _id)} style={styles.actionsComment} />
       </View>
       {
         likesCount.length > 0 && (

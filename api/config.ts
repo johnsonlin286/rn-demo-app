@@ -12,6 +12,7 @@ export default function API(reqbody: any) {
     if (savedStorage) {
       storage = JSON.parse(savedStorage);
     }
+    // console.log(storage);
     await axios
       .post(API_URL, reqbody, {
         headers: {

@@ -8,6 +8,7 @@ const Colors = {
   sky600: "#0284c7",
   yellow500: "#eab308",
   gray300: "#d1d5db",
+  black: "#000000",
 };
 
 export default Colors;
