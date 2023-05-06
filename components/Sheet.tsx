@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useMemo, useRef } from "react";
 import { StyleSheet } from "react-native";
-import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView, BottomSheetFooter, BottomSheetFooterProps } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetFooter } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 type Props = {
@@ -15,14 +15,14 @@ const Sheet: React.FC<Props> = ({ children, showFooter, footer, onDismiss }) => 
   const snapPoints = useMemo(() => ['50%', '75%'], []);
 
   const backdropElm = useCallback((props: any) => (
-    <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={1} />
+    <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={1} pressBehavior="none" />
   ), []);
 
-  const footerElm = useCallback((props: any) => (
+  const footerElm = (props: any) => (
     <BottomSheetFooter {...props} style={styles.footerContainer}>
       {footer}
     </BottomSheetFooter>
-  ), []);
+  );
 
   const onDismissHandler = (index: number) => {
     if (index === -1 && onDismiss) {
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     flex: 1,
+    backgroundColor: 'white',
     paddingVertical: 8,
     paddingHorizontal: 16,
   }

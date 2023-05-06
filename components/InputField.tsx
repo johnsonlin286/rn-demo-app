@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, View, ViewStyle } from "react-native";
 
 import Colors from "../utils/Colors";
+import { useEffect, useRef } from "react";
 
 type Props = {
   label?: string,
@@ -17,7 +18,14 @@ const InputField: React.FC<Props> = ({ label, placeholder, type, secure, value, 
   return (
     <View style={style || null}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <TextInput style={styles.input} placeholder={placeholder || ''} value={value} onChangeText={onChange} keyboardType={type || 'default'} secureTextEntry={secure || false} />
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder || ''}
+        value={value}
+        onChangeText={onChange}
+        keyboardType={type || 'default'}
+        secureTextEntry={secure || false}
+      />
       {
         isInvlid && <Text style={styles.invalidText}>{isInvlid}</Text>
       }

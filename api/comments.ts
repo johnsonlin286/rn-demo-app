@@ -79,3 +79,34 @@ export const postComment = async (photoId: string, message: string) => {
       throw new Error(error);
     });
 };
+
+export const postReplyThread = async (commentId: string, message: string) => {
+  const reqBody = {
+    query: `
+      mutation postReply($threadId: ID!, $message: String!) {
+        postReply(commentInput: {threadId: $threadId, message: $message}), {
+          _id
+          message
+          user {
+            _id
+            name
+          }
+          likes {
+            _id
+          }
+        }
+      }
+    `,
+    variables: {
+      threadId: commentId,
+      message: message,
+    },
+  };
+  return await API(reqBody)
+    .then((response: any) => {
+      return response.postReply;
+    })
+    .catch((error) => {
+      throw new Error(error);
+    });
+};

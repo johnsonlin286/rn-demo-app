@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, ViewStyle } from "react-native";
+import { Pressable, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
 import Colors from "../utils/Colors";
 
 type Props = {
@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0
   },
   text: {
+    fontWeight: 'bold',
     lineHeight: 16,
     color: Colors.sky400
   },
