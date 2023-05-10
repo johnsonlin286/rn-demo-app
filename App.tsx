@@ -19,14 +19,14 @@ import is24Hours from './utils/is24Hours';
 import Avatar from './components/Avatar';
 
 type RootStackParamList = {
-  Home: undefined,
+  Index: undefined,
   Detail: { id: string },
   Signin: undefined,
   Signup: undefined,
 }
 
 type RootTabStackParamList = {
-  Explore: undefined,
+  Home: undefined,
   Form: undefined,
   Auth: undefined,
   Profile: undefined,
@@ -38,10 +38,12 @@ const Tabs = createBottomTabNavigator<RootTabStackParamList>();
 const RootStackNavigation = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={RootTabNavigation} options={{
+      <Stack.Screen name="Index" component={RootTabNavigation} options={{
         headerShown: false
       }} />
-      <Stack.Screen name="Detail" component={DetailScreen} />
+      <Stack.Screen name="Detail" component={DetailScreen} options={{
+        title: 'Explore',
+      }} />
     </Stack.Navigator>
   )
 }
@@ -55,12 +57,13 @@ const RootTabNavigation = () => {
       tabBarActiveTintColor: Colors.sky400,
       tabBarInactiveTintColor: Colors.gray300,
     }}>
-      <Tabs.Screen name="Explore" component={HomeScreen} options={{
+      <Tabs.Screen name="Home" component={HomeScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="md-home" size={size} color={color} />
         )
       }} />
       <Tabs.Screen name="Form" component={FormScreen} options={{
+        title: 'New Post',
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="add-circle" size={size} color={color} />
         )
@@ -100,16 +103,16 @@ const Navigations = () => {
   useEffect(() => {
     const getSavedStorage = async () => {
       const savedStorage = await AsyncStorage.getItem('user');
-      if (savedStorage) {
-        const storage = JSON.parse(savedStorage);
-        const isLessThen24Hours = is24Hours(storage.created_at);
-        if (!isLessThen24Hours) {
-          authenticate(storage.token, storage.id, storage.name, storage.email);
-        } else {
-          await AsyncStorage.removeItem('user');
-          setAlert({ color: 'blue', message: 'session has expired' });
-          return;
-        }
+      if (!savedStorage) {
+        return;
+      }
+      const storage = JSON.parse(savedStorage);
+      const isLessThen24Hours = is24Hours(storage.created_at);
+      if (!isLessThen24Hours) {
+        authenticate(storage.token, storage.id, storage.name, storage.email);
+      } else {
+        await AsyncStorage.removeItem('user');
+        setAlert({ color: 'yellow', message: 'session has expired' });
       }
     }
     getSavedStorage();

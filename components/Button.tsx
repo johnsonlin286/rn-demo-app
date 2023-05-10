@@ -2,15 +2,20 @@ import { Pressable, StyleSheet, Text, ViewStyle } from "react-native";
 import Colors from "../utils/Colors";
 
 type Props = {
-  title: string
-  outline?: boolean
+  title: string,
+  outline?: boolean,
+  disabled?: boolean,
   onPress: () => void,
-  style?: ViewStyle
+  style?: ViewStyle,
 }
 
-const Button: React.FC<Props> = ({ title, outline, onPress, style }) => {
+const Button: React.FC<Props> = ({ title, outline, disabled, onPress, style }) => {
   return (
-    <Pressable style={({ pressed }) => [styles.button, outline ? styles.outline : null, pressed ? styles.pressed : null, style]} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [styles.button, outline ? styles.outline : null, disabled ? styles.disabled : null, pressed ? styles.pressed : null, style]}
+      disabled={disabled}
+      onPress={onPress}
+    >
       <Text style={[styles.text, outline ? styles.textOutline : null]}>{title}</Text>
     </Pressable>
   );
@@ -45,6 +50,9 @@ const styles = StyleSheet.create({
     elevation: 1,
     shadowOpacity: 0.18,
     shadowRadius: 1.00,
+  },
+  disabled: {
+    backgroundColor: Colors.gray300,
   },
   text: {
     color: 'white',

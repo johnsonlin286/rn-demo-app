@@ -1,13 +1,25 @@
 import API from "./config";
 
-export const fetchAllPosts = async (isAuth: boolean, skip: number) => {
+type fetchPostsType = {
+  isAuth: boolean;
+  exclude?: string;
+  skip: number;
+};
+
+export const fetchAllPosts = async (payload: fetchPostsType) => {
+  const { isAuth, exclude, skip } = payload;
   const reqBody = {
     query: `
-      query photos($isAuth: Boolean!, $skip: Float, $limit: Float) {
-        photos(isAuth: $isAuth, skip: $skip, limit: $limit) {
+      query photos($isAuth: Boolean!, $exclude: ID, $skip: Float, $limit: Float) {
+        photos(isAuth: $isAuth, exclude: $exclude, skip: $skip, limit: $limit) {
           data {
-            _id
-            imageUrl
+            _id imageUrl caption 
+            user {
+              _id name
+            }
+            likes {
+              _id
+            }
           }
           total
         }
@@ -15,6 +27,7 @@ export const fetchAllPosts = async (isAuth: boolean, skip: number) => {
     `,
     variables: {
       isAuth: isAuth,
+      exclude: exclude || null,
       skip: skip,
       limit: 10,
     },

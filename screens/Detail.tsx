@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { fetchPhoto } from "../api/posts";
+import { AuthContext } from "../store/context/authContext";
+import { AlertContext } from "../store/context/alertContext";
+import { fetchAllPosts, fetchPhoto } from "../api/posts";
 import PostItem from "../components/PostItem";
 import CommentsSheet from "../components/CommentsSheet";
 
@@ -28,6 +30,9 @@ const DetailScreen = ({ route }: Props) => {
   const postId = useMemo(() => {
     return route?.params?.id;
   }, [route]);
+  const { isAuth } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
+  const totalPost = useRef(0);
   const [data, setData] = useState<Array<DataType>>();
   const [pickedPostId, setPickedPostId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -35,13 +40,24 @@ const DetailScreen = ({ route }: Props) => {
   useEffect(() => {
     const fetching = async () => {
       setLoading(true);
-      const result = await fetchPhoto(postId);
-      setData(() => [result]);
-      setLoading(false);
+      const postResult = await fetchPhoto(postId);
+      if (postResult) {
+        setData(() => [postResult]);
+        // const postsResult = await fetchMorePosts();
+        // if (totalPost.current < postsResult.total) totalPost.current += postsResult.data.length;
+        // setData(() => [postResult, ...postsResult.data]);
+        setLoading(false);
+      } else {
+        setAlert({ color: 'red', message: 'Something Went Wrong!' });
+      }
     }
-
     fetching();
   }, [postId]);
+
+  const fetchMorePosts = async () => {
+    const result = await fetchAllPosts({ isAuth, skip: totalPost.current, exclude: postId });
+    return result;
+  }
 
   if (loading) {
     return null

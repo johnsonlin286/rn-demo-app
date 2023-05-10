@@ -7,6 +7,7 @@ const Colors = {
   sky500: "#0ea5e9",
   sky600: "#0284c7",
   yellow500: "#eab308",
+  gray200: "#e5e7eb",
   gray300: "#d1d5db",
   black: "#000000",
 };
