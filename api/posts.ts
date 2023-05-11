@@ -51,8 +51,7 @@ export const fetchPhoto = async (photoId: string) => {
           imageUrl
           caption
           user {
-            _id
-            name
+            _id name
           }
           likes {
             _id
@@ -70,6 +69,43 @@ export const fetchPhoto = async (photoId: string) => {
   return await API(reqBody)
     .then((response: any) => {
       return response.photo;
+    })
+    .catch((error) => {
+      console.log(error.response);
+      throw new Error(error);
+    });
+};
+
+export const fetchUserPhotos = async (userId: string, skip: number) => {
+  const reqBody = {
+    query: `
+      query userPhotos($userId: ID!, $skip: Float, $limit: Float) {
+        userPhotos(userId: $userId, skip: $skip, limit: $limit) {
+          data {
+            _id imageUrl caption
+            user {
+              _id name
+            }
+            likes {
+              _id
+              user {
+                _id
+              }
+            }
+          }
+          total
+        }
+      }
+    `,
+    variables: {
+      userId: userId,
+      skip: skip || 0,
+      limit: 5,
+    },
+  };
+  return await API(reqBody)
+    .then((response: any) => {
+      return response.userPhotos;
     })
     .catch((error) => {
       console.log(error.response);

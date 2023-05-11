@@ -17,10 +17,12 @@ import AuthContextProvider, { AuthContext } from './store/context/authContext';
 import AlertContextProvider, { AlertContext } from './store/context/alertContext';
 import is24Hours from './utils/is24Hours';
 import Avatar from './components/Avatar';
+import UserScreen from './screens/User';
 
 type RootStackParamList = {
   Index: undefined,
   Detail: { id: string },
+  User: { id: string },
   Signin: undefined,
   Signup: undefined,
 }
@@ -44,6 +46,7 @@ const RootStackNavigation = () => {
       <Stack.Screen name="Detail" component={DetailScreen} options={{
         title: 'Explore',
       }} />
+      <Stack.Screen name='User' component={UserScreen} />
     </Stack.Navigator>
   )
 }

@@ -1,6 +1,7 @@
-type UserType = {
+export type UserType = {
   _id: string;
-  name: string;
+  name?: string;
+  email?: string;
 };
 
 export type LikesType = {
