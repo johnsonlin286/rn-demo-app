@@ -61,7 +61,6 @@ const DetailScreen = ({ route }: Props) => {
 
   const fetchMore = async () => {
     if (!canloadmore) return;
-    console.log('load more');
     try {
       setLoading(true);
       const result = await fetchAllPosts({ isAuth, skip: totalPost, exclude: postId });

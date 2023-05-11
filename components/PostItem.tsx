@@ -43,7 +43,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments }) => {
   useEffect(() => {
     if (isAuth) {
       likesCount.forEach(item => {
-        if (item.user._id === authUser?.id) {
+        if (item.user && item.user._id === authUser?.id) {
           setLiked(item._id);
         }
       })
