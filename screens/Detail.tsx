@@ -32,35 +32,48 @@ const DetailScreen = ({ route }: Props) => {
   }, [route]);
   const { isAuth } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
-  const totalPost = useRef(0);
-  const [data, setData] = useState<Array<DataType>>();
+  const [data, setData] = useState<Array<DataType>>([]);
+  const totalPost = useMemo(() => {
+    return data?.length
+  }, [data]);
   const [pickedPostId, setPickedPostId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
+  const [canloadmore, setCanloadmore] = useState(true);
 
   useEffect(() => {
     const fetching = async () => {
       setLoading(true);
-      const postResult = await fetchPhoto(postId);
-      if (postResult) {
-        setData(() => [postResult]);
-        // const postsResult = await fetchMorePosts();
-        // if (totalPost.current < postsResult.total) totalPost.current += postsResult.data.length;
-        // setData(() => [postResult, ...postsResult.data]);
+      const firstPost = await fetchPhoto(postId);
+      if (firstPost) {
+        const otherPosts = await fetchAllPosts({ isAuth, skip: 0, exclude: postId });
+        if (otherPosts.data.length <= 0) {
+          setCanloadmore(false);
+        }
+        setData(() => [firstPost, ...otherPosts.data]);
         setLoading(false);
       } else {
         setAlert({ color: 'red', message: 'Something Went Wrong!' });
+        setLoading(false);
       }
     }
     fetching();
   }, [postId]);
 
-  const fetchMorePosts = async () => {
-    const result = await fetchAllPosts({ isAuth, skip: totalPost.current, exclude: postId });
-    return result;
-  }
-
-  if (loading) {
-    return null
+  const fetchMore = async () => {
+    if (!canloadmore) return;
+    console.log('load more');
+    try {
+      setLoading(true);
+      const result = await fetchAllPosts({ isAuth, skip: totalPost, exclude: postId });
+      setLoading(false);
+      if (result.data.length > 0) {
+        setData(prev => [...prev, ...result.data]);
+      } else setCanloadmore(false);
+      setLoading(false);
+    } catch (error) {
+      setAlert({ color: 'red', message: 'Something Went Wrong!' });
+      setLoading(false);
+    }
   }
 
   return (
@@ -69,6 +82,8 @@ const DetailScreen = ({ route }: Props) => {
         data={data}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
+        onEndReached={fetchMore}
+        onEndReachedThreshold={0.2}
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
