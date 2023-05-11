@@ -1,7 +1,6 @@
 import { StyleSheet, Text, TextInput, View, ViewStyle } from "react-native";
 
 import Colors from "../utils/Colors";
-import { useEffect, useRef } from "react";
 
 type Props = {
   label?: string,

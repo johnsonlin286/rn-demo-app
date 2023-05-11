@@ -1,7 +1,5 @@
-import { useContext } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
-import { AuthContext } from '../store/context/authContext';
 import Colors from '../utils/Colors';
 import Avatar from './Avatar';
 import IconBtn from './IconBtn';
