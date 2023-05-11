@@ -21,7 +21,7 @@ const InputField: React.FC<Props> = ({ label, placeholder, type, secure, value, 
     <View style={style || null}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextInput
-        style={[styles.input, disabled ? styles.disabled : null, multiline ? { height: 80 } : null]}
+        style={[styles.input, disabled ? styles.disabled : null, multiline ? styles.multiline : null]}
         placeholder={placeholder || ''}
         value={value}
         multiline={multiline || false}
@@ -47,12 +47,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    textAlignVertical: 'top',
     backgroundColor: 'white',
     borderWidth: 1,
     borderRadius: 6,
     paddingVertical: 6,
     paddingHorizontal: 8
+  },
+  multiline: {
+    height: 80,
+    textAlignVertical: 'top',
   },
   disabled: {
     backgroundColor: Colors.gray200,

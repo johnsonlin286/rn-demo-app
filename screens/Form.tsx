@@ -1,10 +1,16 @@
-import { useContext, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
-import { AuthContext } from "../store/context/authContext";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../firebaseConfig';
+import { insertPost } from '../api/posts';
+
+import { AuthContext } from "../store/context/authContext";
+import { AlertContext } from "../store/context/alertContext";
 import PhotoPicker from "../components/PhotoPicker";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
+import Layout from "../components/Layout";
 
 type RootTabStackParamList = {
   Index: undefined;
@@ -21,9 +27,11 @@ type FormTypes = {
 type Props = BottomTabScreenProps<RootTabStackParamList>;
 
 const FormScreen = ({ navigation }: Props) => {
-  const { isAuth } = useContext(AuthContext);
+  const { isAuth, user } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
   const [formState, setFormState] = useState<FormTypes>({} as FormTypes);
   const [errMsg, setErrMsg] = useState<FormTypes>({} as FormTypes);
+  const [uploadingImg, setUploadingImg] = useState(false);
   const [posting, setPosting] = useState(false);
 
   useLayoutEffect(() => {
@@ -57,21 +65,74 @@ const FormScreen = ({ navigation }: Props) => {
     if (hasError) {
       return
     }
-    submitPost();
+    uploadImage();
   }
 
-  const submitPost = async () => {
-    console.log(formState);
+  const uploadImage = async () => {
+    setPosting(true);
+    const blob: any = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => {
+        resolve(xhr.response);
+      }
+      xhr.onerror = (e) => {
+        console.log(e);
+        reject(new TypeError('Network request failed'));
+      }
+      xhr.responseType = "blob";
+      xhr.open("GET", formState.uri, true);
+      xhr.send(null);
+    });
+    const imageRef = ref(storage, `posts_${process.env.ENVI}/${new Date().toISOString()}_${user?.id}`);
+    await uploadBytes(imageRef, blob).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        setFormState(prev => ({
+          ...prev,
+          uri: url
+        }));
+        setUploadingImg(true);
+      }).catch((error) => {
+        console.log('getDownloadURL', error);
+        throw new Error(error);
+      })
+    }).catch((error) => {
+      console.log('uploadBytes', error);
+      throw new Error(error);
+    });
+    blob.close();
+  }
+
+  useEffect(() => {
+    if (uploadingImg) submitFormState();
+  }, [uploadingImg]);
+
+  const submitFormState = async () => {
+    try {
+      const result = await insertPost(formState.uri, formState.caption);
+      setFormState(() => ({ uri: '', caption: '' }));
+      setUploadingImg(false);
+      setPosting(false);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Profile' }]
+      });
+    } catch (error) {
+      setUploadingImg(false);
+      setPosting(false);
+      setAlert({ color: 'red', message: 'Posting Failed!' });
+    }
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <KeyboardAvoidingView style={styles.keyboardAvoid}>
-        <PhotoPicker onPicked={updateFormState.bind(this, 'uri')} isInvalid={errMsg.uri} />
-        <InputField label="Caption:" multiline disabled={!formState.uri || false} onChange={updateFormState.bind(this, 'caption')} isInvlid={errMsg.caption} />
-        <Button title="Post It!" disabled={posting} onPress={formValidation} style={styles.button} />
-      </KeyboardAvoidingView>
-    </ScrollView>
+    <Layout>
+      <ScrollView style={styles.container}>
+        <KeyboardAvoidingView style={styles.keyboardAvoid}>
+          <PhotoPicker defaultValue={formState.uri} onPicked={updateFormState.bind(this, 'uri')} isInvalid={errMsg.uri} />
+          <InputField label="Caption:" value={formState.caption} multiline disabled={!formState.uri || false} onChange={updateFormState.bind(this, 'caption')} isInvlid={errMsg.caption} />
+          <Button title="Post It!" disabled={posting} onPress={formValidation} style={styles.button} />
+        </KeyboardAvoidingView>
+      </ScrollView>
+    </Layout>
   );
 }
 

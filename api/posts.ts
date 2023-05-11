@@ -72,6 +72,30 @@ export const fetchPhoto = async (photoId: string) => {
       return response.photo;
     })
     .catch((error) => {
+      console.log(error.response);
+      throw new Error(error);
+    });
+};
+
+export const insertPost = async (imageUrl: string, caption: string) => {
+  const reqBody = {
+    query: `
+      mutation post($imageUrl: String!, $caption: String!) {
+        post(postInput: {imageUrl: $imageUrl, caption: $caption}), {
+          _id
+        }
+      }
+    `,
+    variables: {
+      imageUrl: imageUrl,
+      caption: caption,
+    },
+  };
+  return await API(reqBody)
+    .then((response: any) => {
+      return response?.post;
+    })
+    .catch((error) => {
       throw new Error(error);
     });
 };

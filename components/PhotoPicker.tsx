@@ -27,10 +27,11 @@ const checkPermission = async (status: PermissionStatus | undefined, requestPerm
 }
 
 type ButtonProps = {
-  onPicked: (uri: string) => void
+  onPicked: (uri: string) => void,
+  onError: (errMsg: string) => void,
 };
 
-const CameraButton: React.FC<ButtonProps> = ({ onPicked }) => {
+const CameraButton: React.FC<ButtonProps> = ({ onPicked, onError }) => {
   const [status, requestPermission] = useCameraPermissions();
 
   const openCamera = async () => {
@@ -45,7 +46,14 @@ const CameraButton: React.FC<ButtonProps> = ({ onPicked }) => {
     });
 
     if (picture.assets !== null) {
-      onPicked(picture.assets[0].uri);
+      const file = picture.assets[0];
+      const re = /(\.jpg|\.jpeg|\.png)$/i;
+      if (file.uri && !re.exec(file.uri)) {
+        onError('I ony accept .jpg, .jpeg, and .png file type.');
+        return;
+      }
+      onPicked(file.uri);
+      onError('');
     }
   }
 
@@ -54,7 +62,7 @@ const CameraButton: React.FC<ButtonProps> = ({ onPicked }) => {
   )
 }
 
-const MediaButton: React.FC<ButtonProps> = ({ onPicked }) => {
+const MediaButton: React.FC<ButtonProps> = ({ onPicked, onError }) => {
   const [status, requestPermission] = useMediaLibraryPermissions();
 
   const openMedia = async () => {
@@ -69,7 +77,14 @@ const MediaButton: React.FC<ButtonProps> = ({ onPicked }) => {
     });
 
     if (picture.assets !== null) {
-      onPicked(picture.assets[0].uri);
+      const file = picture.assets[0];
+      const re = /(\.jpg|\.jpeg|\.png)$/i;
+      if (file.uri && !re.exec(file.uri)) {
+        onError('I ony accept .jpg, .jpeg, and .png file type.');
+        return;
+      }
+      onPicked(file.uri);
+      onError('');
     }
   }
 
@@ -86,10 +101,11 @@ type Props = {
 }
 
 const PhotoPicker: React.FC<Props> = ({ defaultValue, readonly, onPicked, isInvalid }) => {
-  const [imagePreview, setImagePreview] = useState<string>()
+  const [imagePreview, setImagePreview] = useState<string>();
+  const [errMsg, setErrMsg] = useState<string>();
 
   useEffect(() => {
-    if (defaultValue) setImagePreview(defaultValue);
+    if (defaultValue) { };
   }, [defaultValue]);
 
   useEffect(() => {
@@ -113,10 +129,10 @@ const PhotoPicker: React.FC<Props> = ({ defaultValue, readonly, onPicked, isInva
       {
         !readonly && (
           <View style={styles.bottom}>
-            <Text style={styles.invalidText}>{isInvalid || null}</Text>
+            <Text style={styles.invalidText}>{isInvalid || errMsg || null}</Text>
             <View style={styles.buttons}>
-              <CameraButton onPicked={setImagePreview} />
-              <MediaButton onPicked={setImagePreview} />
+              <CameraButton onPicked={setImagePreview} onError={setErrMsg} />
+              <MediaButton onPicked={setImagePreview} onError={setErrMsg} />
             </View>
           </View>
         )
