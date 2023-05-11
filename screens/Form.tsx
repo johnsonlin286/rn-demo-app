@@ -1,5 +1,5 @@
 import { useContext, useEffect, useLayoutEffect, useState } from "react";
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebaseConfig';
@@ -14,7 +14,7 @@ import Layout from "../components/Layout";
 
 type RootTabStackParamList = {
   Index: undefined;
-  Form: undefined;
+  Form: { id: string | undefined };
   Auth: undefined;
   Profile: undefined;
 }
@@ -24,9 +24,9 @@ type FormTypes = {
   caption: string,
 }
 
-type Props = BottomTabScreenProps<RootTabStackParamList>;
+type Props = BottomTabScreenProps<RootTabStackParamList, 'Form'>;
 
-const FormScreen = ({ navigation }: Props) => {
+const FormScreen = ({ route, navigation }: Props) => {
   const { isAuth, user } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
   const [formState, setFormState] = useState<FormTypes>({} as FormTypes);
@@ -40,8 +40,12 @@ const FormScreen = ({ navigation }: Props) => {
         index: 0,
         routes: [{ name: 'Auth' }]
       })
+    } else {
+      if (route.params && route.params.id) {
+        console.log('edit post');
+      }
     }
-  }, [navigation, isAuth]);
+  }, [route, navigation, isAuth]);
 
   const updateFormState = (key: string, value: string) => {
     setFormState(prev => (

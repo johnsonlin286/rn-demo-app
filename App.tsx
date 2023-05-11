@@ -29,7 +29,7 @@ type RootStackParamList = {
 
 type RootTabStackParamList = {
   Home: undefined,
-  Form: undefined,
+  Form: { id: string | undefined },
   Auth: undefined,
   Profile: undefined,
 }

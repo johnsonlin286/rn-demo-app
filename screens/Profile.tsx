@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList } from "react-native";
+import { StyleSheet, View, FlatList, Text } from "react-native";
 import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -9,6 +9,7 @@ import ProfileHeading from "../components/ProfileHeading";
 import LogoutModal from "../components/LogoutModal";
 import { fetchUserPhotos } from "../api/posts";
 import PostItem from "../components/PostItem";
+import CommentsSheet from "../components/CommentsSheet";
 
 type RootStackParamList = {
   Profile: undefined
@@ -32,6 +33,8 @@ function ProfileScreen({ navigation }: Props) {
   const { setAlert } = useContext(AlertContext);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [data, setData] = useState<Array<DataType>>([]);
+  const [pickedPostId, setPickedPostId] = useState<string | undefined>();
+  const [loading, setLoading] = useState(true);
   const [canloadmore, setCanloadmore] = useState(true);
 
   useLayoutEffect(() => {
@@ -48,6 +51,7 @@ function ProfileScreen({ navigation }: Props) {
 
   const fetchingUserPhoto = async () => {
     if (!user || !canloadmore) return;
+    setLoading(true);
     try {
       const result = await fetchUserPhotos(user?.id, data.length);
       if (result.data.length > 0) {
@@ -55,9 +59,11 @@ function ProfileScreen({ navigation }: Props) {
       } else {
         setCanloadmore(false);
       }
+      setLoading(false);
     } catch (error) {
-      setAlert({ color: 'red', message: 'Something went wrong!' });
       console.log(error);
+      setAlert({ color: 'red', message: 'Something went wrong!' });
+      setLoading(false);
     }
   }
 
@@ -65,17 +71,25 @@ function ProfileScreen({ navigation }: Props) {
     <Layout>
       {
         data && data.length > 0 ? (
-          <FlatList
-            data={data}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => <PostItem data={item} onLoadComments={() => null} isOwnerPost />}
-            onEndReached={fetchingUserPhoto}
-            onEndReachedThreshold={0.2}
-            style={styles.container}
-            ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />}
-          />
+          <>
+            <FlatList
+              data={data}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} isOwnerPost />}
+              onEndReached={fetchingUserPhoto}
+              onEndReachedThreshold={0.2}
+              style={styles.container}
+              ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />}
+            />
+            <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+          </>
         ) : (
-          <View></View>
+          <View style={styles.container}>
+            <ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />
+            <View style={styles.containerEmpty}>
+              <Text style={styles.emptyText}>You don't have any post yet...</Text>
+            </View>
+          </View>
         )
       }
       {
@@ -93,4 +107,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
+  containerEmpty: {
+    flex: 1,
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+  }
 })

@@ -84,8 +84,8 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost }) => {
         {
           isOwnerPost && (
             <View style={styles.actionsRight}>
-              <IconBtn icon="trash-bin" size={20} color={Colors.red600} onPress={() => null} />
-              <IconBtn icon="pencil" size={20} color={Colors.sky400} onPress={() => null} style={styles.actionsEdit} />
+              <IconBtn icon="trash-bin" size={20} color={Colors.red600} onPress={() => console.log('delete')} />
+              <IconBtn icon="pencil" size={20} color={Colors.sky400} onPress={() => navigation.navigate('Form', { id: _id })} style={styles.actionsEdit} />
             </View>
           )
         }
