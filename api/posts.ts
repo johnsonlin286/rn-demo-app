@@ -161,3 +161,26 @@ export const deletePost = async (photoId: string) => {
       return error;
     });
 };
+
+export const editPost = async (photoId: string, caption: string) => {
+  const reqBody = {
+    query: `
+      mutation updatePost($postId: ID!, $caption: String!) {
+        updatePost(updatePostInput: {photoId: $postId, caption: $caption}), {
+          _id
+        }
+      }
+    `,
+    variables: {
+      postId: photoId,
+      caption: caption,
+    },
+  };
+  return await API(reqBody)
+    .then((response: any) => {
+      return response;
+    })
+    .catch((error) => {
+      return error;
+    });
+};

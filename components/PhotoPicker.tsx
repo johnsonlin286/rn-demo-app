@@ -105,7 +105,7 @@ const PhotoPicker: React.FC<Props> = ({ defaultValue, readonly, onPicked, isInva
   const [errMsg, setErrMsg] = useState<string>();
 
   useEffect(() => {
-    if (defaultValue) { };
+    setImagePreview(defaultValue);
   }, [defaultValue]);
 
   useEffect(() => {
@@ -114,7 +114,7 @@ const PhotoPicker: React.FC<Props> = ({ defaultValue, readonly, onPicked, isInva
 
   return (
     <>
-      <View style={styles.container}>
+      <View style={[styles.container, readonly ? styles.readonly : null]}>
         {
           imagePreview ? (
             <Image source={{ uri: imagePreview }} style={styles.image} />
@@ -153,6 +153,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.gray300,
     borderStyle: 'dashed',
     overflow: 'hidden',
+  },
+  readonly: {
+    marginBottom: 32,
   },
   bottom: {
     flexDirection: 'row',

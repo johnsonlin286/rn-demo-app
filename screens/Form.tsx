@@ -1,9 +1,10 @@
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useLayoutEffect, useState } from "react";
 import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebaseConfig';
-import { insertPost } from '../api/posts';
+import { editPost, fetchPhoto, insertPost } from '../api/posts';
 
 import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
@@ -29,6 +30,7 @@ type Props = BottomTabScreenProps<RootTabStackParamList, 'Form'>;
 const FormScreen = ({ route, navigation }: Props) => {
   const { isAuth, user } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
+  const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [formState, setFormState] = useState<FormTypes>({} as FormTypes);
   const [errMsg, setErrMsg] = useState<FormTypes>({} as FormTypes);
   const [uploadingImg, setUploadingImg] = useState(false);
@@ -42,10 +44,64 @@ const FormScreen = ({ route, navigation }: Props) => {
       })
     } else {
       if (route.params && route.params.id) {
-        console.log('edit post');
-      }
+        navigation.setOptions({ title: 'Edit Post' });
+        setEditingId(route.params.id);
+      } else {
+        navigation.setOptions({ title: 'New Post' });
+        setEditingId(undefined);
+      };
     }
   }, [route, navigation, isAuth]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (editingId === undefined) {
+        return;
+      }
+      const fetching = async () => {
+        // setLoading(true);
+        try {
+          const result = await fetchPhoto(editingId);
+          if (result) {
+            setFormState(() => ({
+              uri: result.imageUrl,
+              caption: result.caption
+            }))
+          }
+        } catch (error) {
+          setAlert({ color: 'red', message: 'Something Went Wrong!' });
+        }
+        // setLoading(false);
+      }
+      fetching();
+      return () => {
+        setFormState({} as FormTypes);
+        navigation.setParams({ id: undefined });
+      }
+    }, [editingId])
+  );
+
+  // useEffect(() => {
+  //   if (editingId === undefined) {
+  //     return;
+  //   }
+  //   const fetching = async () => {
+  //     // setLoading(true);
+  //     try {
+  //       const result = await fetchPhoto(editingId);
+  //       if (result) {
+  //         setFormState(() => ({
+  //           uri: result.imageUrl,
+  //           caption: result.caption
+  //         }))
+  //       }
+  //     } catch (error) {
+  //       setAlert({ color: 'red', message: 'Something Went Wrong!' });
+  //     }
+  //     // setLoading(false);
+  //   }
+  //   fetching();
+  // }, [editingId]);
 
   const updateFormState = (key: string, value: string) => {
     setFormState(prev => (
@@ -110,27 +166,38 @@ const FormScreen = ({ route, navigation }: Props) => {
   }, [uploadingImg]);
 
   const submitFormState = async () => {
-    try {
-      const result = await insertPost(formState.uri, formState.caption);
-      setFormState(() => ({ uri: '', caption: '' }));
+    if (!editingId) {
+      try {
+        const result = await insertPost(formState.uri, formState.caption);
+        setAlert({ color: 'green', message: 'Posting success!' });
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Profile' }]
+        });
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Posting failed!' });
+      }
       setUploadingImg(false);
-      setPosting(false);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Profile' }]
-      });
-    } catch (error) {
-      setUploadingImg(false);
-      setPosting(false);
-      setAlert({ color: 'red', message: 'Posting failed!' });
+    } else {
+      try {
+        const result = await editPost(editingId, formState.caption);
+        setAlert({ color: 'green', message: 'Edit post success!' });
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Profile' }]
+        });
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Edit post failed!' });
+      }
     }
+    setPosting(false);
   }
 
   return (
     <Layout>
       <ScrollView style={styles.container}>
         <KeyboardAvoidingView style={styles.keyboardAvoid}>
-          <PhotoPicker defaultValue={formState.uri} onPicked={updateFormState.bind(this, 'uri')} isInvalid={errMsg.uri} />
+          <PhotoPicker defaultValue={formState.uri} onPicked={updateFormState.bind(this, 'uri')} readonly={editingId ? true : false} isInvalid={errMsg.uri} />
           <InputField label="Caption:" value={formState.caption} multiline disabled={!formState.uri || false} onChange={updateFormState.bind(this, 'caption')} isInvlid={errMsg.caption} />
           <Button title="Post It!" disabled={posting} onPress={formValidation} style={styles.button} />
         </KeyboardAvoidingView>
