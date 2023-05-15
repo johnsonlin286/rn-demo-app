@@ -1,5 +1,5 @@
 import { StyleSheet, View, FlatList, Text } from "react-native";
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthContext } from "../store/context/authContext";
@@ -7,9 +7,10 @@ import { AlertContext } from "../store/context/alertContext";
 import Layout from "../components/Layout";
 import ProfileHeading from "../components/ProfileHeading";
 import LogoutModal from "../components/LogoutModal";
-import { fetchUserPhotos } from "../api/posts";
+import { deletePost, fetchUserPhotos } from "../api/posts";
 import PostItem from "../components/PostItem";
 import CommentsSheet from "../components/CommentsSheet";
+import DeleteModal from "../components/DeleteModal";
 
 type RootStackParamList = {
   Profile: undefined
@@ -33,9 +34,12 @@ function ProfileScreen({ navigation }: Props) {
   const { setAlert } = useContext(AlertContext);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [data, setData] = useState<Array<DataType>>([]);
+  const totalPosts = useRef(0);
   const [pickedPostId, setPickedPostId] = useState<string | undefined>();
+  const [deleteId, setDeleteId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const [canloadmore, setCanloadmore] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   useLayoutEffect(() => {
     if (isAuth && user) {
@@ -44,8 +48,12 @@ function ProfileScreen({ navigation }: Props) {
   }, [navigation, isAuth, user]);
 
   useEffect(() => {
-    fetchingUserPhoto();
-  }, []);
+    if (data.length === 0) {
+      fetchingUserPhoto();
+    } else if (data.length >= totalPosts.current) {
+      setCanloadmore(false);
+    }
+  }, [data, totalPosts, setCanloadmore]);
 
   const logoutToggle = () => setLogoutConfirm(!logoutConfirm);
 
@@ -56,14 +64,35 @@ function ProfileScreen({ navigation }: Props) {
       const result = await fetchUserPhotos(user?.id, data.length);
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data]);
-      } else {
-        setCanloadmore(false);
+        totalPosts.current = result.total;
       }
       setLoading(false);
     } catch (error) {
       setAlert({ color: 'red', message: 'Something went wrong!' });
       setLoading(false);
     }
+  }
+
+  const deletingPost = async () => {
+    if (!deleteId) return;
+    setDeleting(true);
+    try {
+      const clone = data;
+      const postIndex = clone.findIndex(item => item._id === deleteId);
+      if (postIndex === -1) {
+        setDeleteId(undefined);
+        setDeleting(false);
+        setAlert({ color: 'red', message: 'Post not found!' });
+        return;
+      }
+      const result = await deletePost(deleteId);
+      clone.splice(postIndex, 1)
+      setData(clone);
+    } catch (error) {
+      setAlert({ color: 'red', message: 'Something went wrong!' });
+    }
+    setDeleteId(undefined);
+    setDeleting(false);
   }
 
   return (
@@ -74,13 +103,14 @@ function ProfileScreen({ navigation }: Props) {
             <FlatList
               data={data}
               keyExtractor={(item) => item._id}
-              renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} isOwnerPost />}
+              renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} isOwnerPost onDelete={setDeleteId} />}
               onEndReached={fetchingUserPhoto}
               onEndReachedThreshold={0.2}
               style={styles.container}
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />}
             />
             <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            <DeleteModal isVisible={deleteId ? true : false} deleting={deleting} onConfirm={deletingPost} onDismiss={() => setDeleteId(undefined)} />
           </>
         ) : (
           <View style={styles.container}>

@@ -139,3 +139,25 @@ export const insertPost = async (imageUrl: string, caption: string) => {
       // throw new Error(error);
     });
 };
+
+export const deletePost = async (photoId: string) => {
+  const reqBody = {
+    query: `
+      mutation deletePost($photoId: ID!){
+        deletePost(photoId: $photoId), {
+          _id
+        }
+      }
+    `,
+    variables: {
+      photoId: photoId,
+    },
+  };
+  return await API(reqBody)
+    .then((response: any) => {
+      return response.deletePost;
+    })
+    .catch((error) => {
+      return error;
+    });
+};

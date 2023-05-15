@@ -28,10 +28,11 @@ type Props = {
     user: UserType,
   },
   onLoadComments: (id: string) => void,
-  isOwnerPost?: boolean
+  isOwnerPost?: boolean,
+  onDelete?: (id: string) => void
 }
 
-const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost }) => {
+const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete }) => {
   const navigation = useNavigation<any>();
   const { isAuth, user: authUser } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
@@ -81,6 +82,10 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost }) => {
     navigation.navigate('User', { id: user._id })
   }
 
+  const deleteButtonHandler = () => {
+    if (isOwnerPost && onDelete) onDelete(_id);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -94,7 +99,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost }) => {
         {
           isOwnerPost && (
             <View style={styles.actionsRight}>
-              <IconBtn icon="trash-bin" size={20} color={Colors.red600} onPress={() => console.log('delete')} />
+              <IconBtn icon="trash-bin" size={20} color={Colors.red600} onPress={deleteButtonHandler} />
               <IconBtn icon="pencil" size={20} color={Colors.sky400} onPress={() => navigation.navigate('Form', { id: _id })} style={styles.actionsEdit} />
             </View>
           )
