@@ -20,7 +20,8 @@ export const signup = async (name: string, email: string, password: string) => {
       return response?.signup;
     })
     .catch((error) => {
-      throw new Error(error);
+      return error;
+      // throw new Error(error);
     });
 };
 
@@ -43,6 +44,7 @@ export const signin = async (email: string, password: string) => {
       return response?.signin;
     })
     .catch((error) => {
-      throw new Error(error);
+      return error;
+      // throw new Error(error);
     });
 };

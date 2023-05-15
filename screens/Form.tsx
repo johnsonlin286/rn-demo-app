@@ -99,9 +99,8 @@ const FormScreen = ({ route, navigation }: Props) => {
         console.log('getDownloadURL', error);
         throw new Error(error);
       })
-    }).catch((error) => {
-      console.log('uploadBytes', error);
-      throw new Error(error);
+    }).catch(() => {
+      setAlert({ color: 'red', message: 'Upload photo filed!' });
     });
     blob.close();
   }
@@ -123,7 +122,7 @@ const FormScreen = ({ route, navigation }: Props) => {
     } catch (error) {
       setUploadingImg(false);
       setPosting(false);
-      setAlert({ color: 'red', message: 'Posting Failed!' });
+      setAlert({ color: 'red', message: 'Posting failed!' });
     }
   }
 

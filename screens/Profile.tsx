@@ -61,7 +61,6 @@ function ProfileScreen({ navigation }: Props) {
       }
       setLoading(false);
     } catch (error) {
-      console.log(error);
       setAlert({ color: 'red', message: 'Something went wrong!' });
       setLoading(false);
     }

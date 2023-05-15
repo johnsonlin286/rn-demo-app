@@ -19,9 +19,13 @@ function HomeScreen() {
 
   const fetching = async () => {
     setLoading(true);
-    const result = await fetchAllPosts({ isAuth, skip: totalPost.current });
-    if (totalPost.current < result.total) totalPost.current += result.data.length;
-    setPosts(prev => [...result.data, ...prev]);
+    try {
+      const result = await fetchAllPosts({ isAuth, skip: totalPost.current });
+      if (totalPost.current < result.total) totalPost.current += result.data.length;
+      setPosts(prev => [...result.data, ...prev]);
+    } catch (error) {
+      console.log(error);
+    }
     setLoading(false);
   }
 

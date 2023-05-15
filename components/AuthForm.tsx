@@ -62,14 +62,22 @@ const AuthForm: React.FC<Props> = ({ isSignup }) => {
   const formSubmit = async () => {
     setLoading(true);
     if (isSignup) {
-      const result = await signup(formState.name, formState.email, formState.password);
-      navigation.navigate('Signin');
-      setAlert({ color: 'green', message: `Your Account ${formState.email} successfully created!` });
+      try {
+        const result = await signup(formState.name, formState.email, formState.password);
+        navigation.navigate('Signin');
+        setAlert({ color: 'green', message: `Your Account ${formState.email} successfully created!` });
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Signup failed!' });
+      }
     } else {
-      const result = await signin(formState.email, formState.password);
-      authenticate(result.token, result._id, result.name, result.email);
-      navigation.navigate('Profile');
-      setAlert({ color: 'green', message: `Hi ${result.name}, Welcome back!` });
+      try {
+        const result = await signin(formState.email, formState.password);
+        authenticate(result.token, result._id, result.name, result.email);
+        navigation.navigate('Profile');
+        setAlert({ color: 'green', message: `Hi ${result.name}, Welcome back!` });
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Signin failed!' });
+      }
     }
     setLoading(false);
   }
@@ -81,7 +89,7 @@ const AuthForm: React.FC<Props> = ({ isSignup }) => {
       }
       <InputField label="Email" type="email-address" value={formState.email} onChange={updateFormState.bind(this, 'email')} style={styles.input} isInvlid={formError.email} />
       <InputField label="Password" secure value={formState.password} onChange={updateFormState.bind(this, 'password')} style={styles.input} isInvlid={formError.password} />
-      <Button title="Sign In" onPress={formValidation} style={styles.button} />
+      <Button title="Sign In" disabled={loading} onPress={formValidation} style={styles.button} />
     </KeyboardAvoidingView>
   );
 }

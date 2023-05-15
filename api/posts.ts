@@ -37,8 +37,9 @@ export const fetchAllPosts = async (payload: fetchPostsType) => {
       return response?.photos;
     })
     .catch((error) => {
-      console.log(error.response);
-      throw new Error(error);
+      // console.log(error.response);
+      return error;
+      // throw new Error(error);
     });
 };
 
@@ -71,8 +72,9 @@ export const fetchPhoto = async (photoId: string) => {
       return response.photo;
     })
     .catch((error) => {
-      console.log(error.response);
-      throw new Error(error);
+      // console.log(error.response);
+      return error;
+      // throw new Error(error);
     });
 };
 
@@ -108,8 +110,9 @@ export const fetchUserPhotos = async (userId: string, skip: number) => {
       return response.userPhotos;
     })
     .catch((error) => {
-      console.log(error.response);
-      throw new Error(error);
+      // console.log(error.response);
+      return error;
+      // throw new Error(error);
     });
 };
 
@@ -132,6 +135,7 @@ export const insertPost = async (imageUrl: string, caption: string) => {
       return response?.post;
     })
     .catch((error) => {
-      throw new Error(error);
+      return error;
+      // throw new Error(error);
     });
 };

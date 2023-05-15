@@ -7,6 +7,7 @@ import { AuthContext } from "../store/context/authContext";
 import { likePost, dislikePost } from "../api/like";
 import IconBtn from "./IconBtn";
 import LikeBtn from "./LikeBtn";
+import { AlertContext } from "../store/context/alertContext";
 
 type UserType = {
   _id: string,
@@ -33,6 +34,7 @@ type Props = {
 const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost }) => {
   const navigation = useNavigation<any>();
   const { isAuth, user: authUser } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
   const { _id, caption, imageUrl, likes, user } = data;
   const [likesCount, setLikesCount] = useState<Array<LikesType>>([]);
   const [liked, setLiked] = useState<string | undefined>();
@@ -57,13 +59,21 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost }) => {
       return;
     }
     if (!liked) {
-      const like = await likePost(_id);
-      setLikesCount((prev) => [...prev, like]);
-      setLiked(like._id);
+      try {
+        const like = await likePost(_id);
+        setLikesCount((prev) => [...prev, like]);
+        setLiked(like._id);
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong!' });
+      }
     } else {
-      const dislike = await dislikePost(liked);
-      setLikesCount(() => likesCount.filter(like => like._id !== dislike._id));
-      setLiked(undefined);
+      try {
+        const dislike = await dislikePost(liked);
+        setLikesCount(() => likesCount.filter(like => like._id !== dislike._id));
+        setLiked(undefined);
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong!' });
+      }
     }
   }
 

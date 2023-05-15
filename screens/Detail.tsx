@@ -1,5 +1,5 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { FlatList, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthContext } from "../store/context/authContext";
@@ -43,18 +43,14 @@ const DetailScreen = ({ route }: Props) => {
   useEffect(() => {
     const fetching = async () => {
       setLoading(true);
-      const firstPost = await fetchPhoto(postId);
-      if (firstPost) {
-        const otherPosts = await fetchAllPosts({ isAuth, skip: 0, exclude: postId });
-        if (otherPosts.data.length <= 0) {
-          setCanloadmore(false);
-        }
-        setData(() => [firstPost, ...otherPosts.data]);
-        setLoading(false);
-      } else {
+      try {
+        const firstPost = await fetchPhoto(postId);
+        setData(() => [firstPost]);
+        fetchMore();
+      } catch (error) {
         setAlert({ color: 'red', message: 'Something Went Wrong!' });
-        setLoading(false);
       }
+      setLoading(false);
     }
     fetching();
   }, [postId]);

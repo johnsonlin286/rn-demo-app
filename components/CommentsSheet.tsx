@@ -1,10 +1,11 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { StyleSheet, Text } from "react-native";
 import { BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
 import { fetchComments, postComment, postReplyThread } from "../api/comments";
 import { likeComment, dislikeComment } from "../api/like";
 import { AuthContext } from "../store/context/authContext";
+import { AlertContext } from "../store/context/alertContext";
 import { CommentType } from "../types/types";
 import Sheet from "./Sheet";
 import CommentForm from "./CommentForm";
@@ -22,6 +23,7 @@ type Props = {
 
 const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const { isAuth, user } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
   const postId = useMemo(() => {
     return id
   }, [id]);
@@ -33,8 +35,12 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
       return;
     }
     const fetchingComments = async () => {
-      const result = await fetchComments(postId);
-      setComments(() => result.data);
+      try {
+        const result = await fetchComments(postId);
+        setComments(() => result.data);
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong!' });
+      }
     }
     fetchingComments();
   }, [postId]);
@@ -44,22 +50,30 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
       return;
     }
     if (!replying) {
-      const newComment = await postComment(postId, message);
-      setComments(prev => [newComment, ...prev])
+      try {
+        const newComment = await postComment(postId, message);
+        setComments(prev => [newComment, ...prev])
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong' });
+      }
     } else {
-      const replyComment = await postReplyThread(replying.threadId, message);
-      const clone = comments;
-      clone.map(comment => {
-        if (comment._id === replying.threadId) {
-          comment.reply?.push(replyComment);
-        }
-      })
-      setComments(() => clone);
+      try {
+        const replyComment = await postReplyThread(replying.threadId, message);
+        const clone = comments;
+        clone.map(comment => {
+          if (comment._id === replying.threadId) {
+            comment.reply?.push(replyComment);
+          }
+        })
+        setComments(() => clone);
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong' });
+      }
       setReplying(undefined);
     }
   }
 
-  const replyToggleHandler = async (threadId: string, replyTo: string) => {
+  const replyToggleHandler = (threadId: string, replyTo: string) => {
     setReplying(() => ({
       threadId,
       replyTo,
@@ -69,29 +83,37 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const likeToggleHandler = async (type: string, id: string) => {
     const clone = comments;
     if (type === 'like') {
-      const like = await likeComment(id);
-      clone.map(comment => {
-        if (comment._id === id) {
-          comment.likes.push(like);
-        } else {
-          comment.reply?.map(rply => {
-            if (rply._id === id) {
-              rply.likes.push(like);
-            }
-          })
-        }
-      });
+      try {
+        const like = await likeComment(id);
+        clone.map(comment => {
+          if (comment._id === id) {
+            comment.likes.push(like);
+          } else {
+            comment.reply?.map(rply => {
+              if (rply._id === id) {
+                rply.likes.push(like);
+              }
+            })
+          }
+        });
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong!' });
+      }
     } else if (type === 'dislike') {
-      const dislike = await dislikeComment(id);
-      clone.map(comment => {
-        if (comment.likes.filter(like => like._id === dislike._id).length > 0) {
-          comment.likes = comment.likes.filter(like => like._id !== dislike._id);
-        } else {
-          comment.reply?.map(rply => {
-            rply.likes = rply.likes.filter(like => like._id !== dislike._id);
-          })
-        }
-      });
+      try {
+        const dislike = await dislikeComment(id);
+        clone.map(comment => {
+          if (comment.likes.filter(like => like._id === dislike._id).length > 0) {
+            comment.likes = comment.likes.filter(like => like._id !== dislike._id);
+          } else {
+            comment.reply?.map(rply => {
+              rply.likes = rply.likes.filter(like => like._id !== dislike._id);
+            })
+          }
+        });
+      } catch (error) {
+        setAlert({ color: 'red', message: 'Something went wrong!' });
+      }
     }
     setComments(() => clone);
   }
