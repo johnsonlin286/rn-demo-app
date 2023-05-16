@@ -8,7 +8,7 @@ type Props = {
   userName: string,
   postCount: number,
   isOwnProfile?: boolean,
-  onLogoutPress: () => void
+  onLogoutPress?: () => void
 }
 
 const ProfileHeading: React.FC<Props> = ({ userName, postCount, isOwnProfile, onLogoutPress }) => {
@@ -22,7 +22,7 @@ const ProfileHeading: React.FC<Props> = ({ userName, postCount, isOwnProfile, on
         </View>
       </View>
       {
-        isOwnProfile && <IconBtn icon="log-out-outline" size={30} color={Colors.sky400} onPress={onLogoutPress} />
+        isOwnProfile && onLogoutPress && <IconBtn icon="log-out-outline" size={30} color={Colors.sky400} onPress={onLogoutPress} />
       }
     </View>
   );
