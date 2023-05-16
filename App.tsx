@@ -6,6 +6,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import AuthContextProvider, { AuthContext } from './store/context/authContext';
+import AlertContextProvider, { AlertContext } from './store/context/alertContext';
 import Colors from './utils/Colors';
 import HomeScreen from './screens/Home';
 import FormScreen from './screens/Form';
@@ -13,23 +15,23 @@ import SigninScreen from './screens/Signin';
 import SignupScreen from './screens/Signup';
 import DetailScreen from './screens/Detail';
 import ProfileScreen from './screens/Profile';
-import AuthContextProvider, { AuthContext } from './store/context/authContext';
-import AlertContextProvider, { AlertContext } from './store/context/alertContext';
 import is24Hours from './utils/is24Hours';
 import Avatar from './components/Avatar';
 import UserScreen from './screens/User';
+import EditScreen from './screens/Edit';
 
 type RootStackParamList = {
   Index: undefined,
-  Detail: { id: string },
-  User: { id: string },
   Signin: undefined,
   Signup: undefined,
+  Detail: { id: string },
+  User: { id: string },
+  Edit: { id: string },
 }
 
 type RootTabStackParamList = {
   Home: undefined,
-  Form: { id: string | undefined },
+  Form: undefined,
   Auth: undefined,
   Profile: undefined,
 }
@@ -47,6 +49,9 @@ const RootStackNavigation = () => {
         title: 'Explore',
       }} />
       <Stack.Screen name='User' component={UserScreen} />
+      <Stack.Screen name="Edit" component={EditScreen} options={{
+        title: 'Edit Post'
+      }} />
     </Stack.Navigator>
   )
 }

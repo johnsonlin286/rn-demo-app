@@ -100,7 +100,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
           isOwnerPost && (
             <View style={styles.actionsRight}>
               <IconBtn icon="trash-bin" size={20} color={Colors.red600} onPress={deleteButtonHandler} />
-              <IconBtn icon="pencil" size={20} color={Colors.sky400} onPress={() => navigation.navigate('Form', { id: _id })} style={styles.actionsEdit} />
+              <IconBtn icon="pencil" size={20} color={Colors.sky400} onPress={() => navigation.navigate('Edit', { id: _id })} style={styles.actionsEdit} />
             </View>
           )
         }
@@ -111,7 +111,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
         )
       }
       <View style={styles.caption}>
-        <Pressable onPress={profileNavigation}><Text style={[styles.textCaption, styles.textName]}>{`${user.name} `}</Text></Pressable>
+        <Pressable onPress={!isOwnerPost ? profileNavigation : () => null}><Text style={[styles.textCaption, styles.textName]}>{`${user.name} `}</Text></Pressable>
         <Text style={styles.textCaption}>{caption}</Text>
       </View>
     </View>
