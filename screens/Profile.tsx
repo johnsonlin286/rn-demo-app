@@ -55,8 +55,6 @@ function ProfileScreen({ navigation }: Props) {
     }
   }, [data, totalPosts, setCanloadmore]);
 
-  const logoutToggle = () => setLogoutConfirm(!logoutConfirm);
-
   const fetchingUserPhoto = async () => {
     if (!user || !canloadmore) return;
     setLoading(true);
@@ -94,6 +92,8 @@ function ProfileScreen({ navigation }: Props) {
     setDeleteId(undefined);
     setDeleting(false);
   }
+
+  const logoutToggle = () => setLogoutConfirm(!logoutConfirm);
 
   return (
     <Layout>

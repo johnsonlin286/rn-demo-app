@@ -1,7 +1,9 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { FlatList, StyleSheet } from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthContext } from "../store/context/authContext";
+import { AlertContext } from "../store/context/alertContext";
 import { fetchAllPosts } from "../api/posts";
 import Layout from "../components/Layout";
 import ImageThumbnail from "../components/ImageThumbnail";
@@ -11,30 +13,49 @@ type PostItemType = {
   imageUrl: string,
 }
 
-function HomeScreen() {
-  const { isAuth } = useContext(AuthContext);
+type RootStackParamList = {
+  Home: undefined
+}
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+function HomeScreen({ navigation }: Props) {
+  const { isAuth, user } = useContext(AuthContext);
+  const { setAlert } = useContext(AlertContext);
   const totalPost = useRef(0);
   const [posts, setPosts] = useState<Array<PostItemType>>([]);
   const [loading, setLoading] = useState(false);
-
-  const fetching = async () => {
-    setLoading(true);
-    try {
-      const result = await fetchAllPosts({ isAuth, skip: totalPost.current });
-      if (totalPost.current < result.total) totalPost.current += result.data.length;
-      setPosts(prev => [...result.data, ...prev]);
-    } catch (error) {
-      console.log(error);
-    }
-    setLoading(false);
-  }
+  const [refreshing, setRefreshing] = useState(false);
+  const currentUser: string | null = useMemo(() => {
+    if (user) {
+      return user.id
+    } else return null
+  }, [user]);
 
   useEffect(() => {
-    fetching();
-  }, []);
+    fetching(true);
+  }, [currentUser]);
+
+  const fetching = async (refatch?: boolean) => {
+    setLoading(true);
+    try {
+      const result = await fetchAllPosts({ isAuth, skip: refatch ? 0 : totalPost.current });
+      totalPost.current = result.total;
+      if (refatch) {
+        setPosts(result.data);
+      } else {
+        setPosts(prev => [...prev, ...result.data]);
+      }
+    } catch (error) {
+      console.log(error);
+      setAlert({ color: 'red', message: 'Fetching posts failed!' });
+    }
+    setLoading(false);
+    setRefreshing(false);
+  }
 
   const fetchMore = () => {
-    if (totalPost.current === posts.length) {
+    if (posts.length >= totalPost.current) {
       return;
     }
     fetching();
@@ -52,6 +73,11 @@ function HomeScreen() {
           numColumns={3}
           onEndReached={fetchMore}
           onEndReachedThreshold={0.2}
+          onRefresh={() => {
+            setRefreshing(true);
+            fetching(true);
+          }}
+          refreshing={refreshing}
           style={styles.listContainer}
         />)
       }
