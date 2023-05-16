@@ -47,7 +47,6 @@ function HomeScreen({ navigation }: Props) {
         setPosts(prev => [...prev, ...result.data]);
       }
     } catch (error) {
-      console.log(error);
       setAlert({ color: 'red', message: 'Fetching posts failed!' });
     }
     setLoading(false);

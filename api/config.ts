@@ -12,7 +12,6 @@ export default function API(reqbody: any) {
     if (savedStorage) {
       storage = JSON.parse(savedStorage);
     }
-    // console.log(storage);
     await axios
       .post(API_URL, reqbody, {
         headers: {
@@ -22,13 +21,10 @@ export default function API(reqbody: any) {
         },
       })
       .then((response) => {
-        // console.log("axios: ", response.data);
         return resolve(response.data.data);
-        // return response.data;
       })
       .catch((error) => {
         return reject(error);
-        // return error;
       });
   });
 }

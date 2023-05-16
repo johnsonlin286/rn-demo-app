@@ -59,7 +59,7 @@ const FormScreen = ({ navigation }: Props) => {
         resolve(xhr.response);
       }
       xhr.onerror = (e) => {
-        console.log(e);
+        // console.log(e);
         reject(new TypeError('Network request failed'));
       }
       xhr.responseType = "blob";
@@ -75,7 +75,6 @@ const FormScreen = ({ navigation }: Props) => {
         }));
         setUploadingImg(true);
       }).catch((error) => {
-        console.log('getDownloadURL', error);
         setAlert({ color: 'red', message: 'Upload photo filed!' });
       })
     }).catch(() => {
