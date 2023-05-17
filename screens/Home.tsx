@@ -42,9 +42,9 @@ function HomeScreen({ navigation }: Props) {
     if (!result.error) {
       totalPost.current = result.total;
       if (refatch) {
-        setPosts(result.data);
+        setPosts(result.data.reverse());
       } else {
-        setPosts(prev => [...prev, ...result.data]);
+        setPosts(prev => [...prev, ...result.data.reverse()]);
       }
     } else {
       const { data } = result.error;

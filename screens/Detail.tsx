@@ -63,7 +63,7 @@ const DetailScreen = ({ route }: Props) => {
     const result = await fetchAllPosts({ skip: totalPost, exclude: postId });
     if (!result.error) {
       if (result.data.length > 0) {
-        setData(prev => [...prev, ...result.data]);
+        setData(prev => [...prev, ...result.data.reverse()]);
       } else setCanloadmore(false);
     } else {
       const { data } = result.error;

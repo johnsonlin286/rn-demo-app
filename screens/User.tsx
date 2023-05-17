@@ -77,7 +77,7 @@ function UserScreen({ route, navigation }: Props) {
     const result = await fetchUserPhotos(userId, data.length);
     if (!result.error) {
       if (result.data.length > 0) {
-        setData(prev => [...prev, ...result.data]);
+        setData(prev => [...prev, ...result.data.reverse()]);
         totalPosts.current = result.total;
       }
     } else {

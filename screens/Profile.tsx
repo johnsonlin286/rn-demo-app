@@ -61,7 +61,7 @@ function ProfileScreen({ navigation }: Props) {
     const result = await fetchUserPhotos(user?.id, data.length);
     if (!result.error) {
       if (result.data.length > 0) {
-        setData(prev => [...prev, ...result.data]);
+        setData(prev => [...prev, ...result.data.reverse()]);
         totalPosts.current = result.total;
       }
     } else {
