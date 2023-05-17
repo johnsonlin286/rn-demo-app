@@ -135,7 +135,7 @@ const Navigations = () => {
 export default function App() {
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
       <AuthContextProvider>
         <AlertContextProvider>
           <Navigations />

@@ -13,7 +13,7 @@
         "buildType": "apk"
       },
       "env": {
-        "ENVI": "development",
+        "ENVI": "develop",
         "API_URL": "http://192.168.1.9:3030/graphql",
         "GOOGLE_KEY": "AIzaSyCyyx0dfhlbTxFUxPOS4-vnxSQKqB1ciuo",
         "FB_AUTH_DOMAIN": "jlin-firebase.firebaseapp.com",
