@@ -10,7 +10,7 @@ export const fetchAllPosts = async (payload: fetchPostsType) => {
   const reqBody = {
     query: `
       query photos($exclude: ID, $skip: Float, $limit: Float) {
-        photos(isAuth: $isAuth, exclude: $exclude, skip: $skip, limit: $limit) {
+        photos(exclude: $exclude, skip: $skip, limit: $limit) {
           data {
             _id imageUrl caption 
             user {
