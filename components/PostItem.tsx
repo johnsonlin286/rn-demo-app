@@ -60,20 +60,22 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
       return;
     }
     if (!liked) {
-      try {
-        const like = await likePost(_id);
-        setLikesCount((prev) => [...prev, like]);
-        setLiked(like._id);
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong!' });
+      const result = await likePost(_id);
+      if (!result.error) {
+        setLikesCount((prev) => [...prev, result]);
+        setLiked(result._id);
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     } else {
-      try {
-        const dislike = await dislikePost(liked);
-        setLikesCount(() => likesCount.filter(like => like._id !== dislike._id));
+      const result = await dislikePost(liked);
+      if (!result.error) {
+        setLikesCount(() => likesCount.filter(like => like._id !== result._id));
         setLiked(undefined);
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong!' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     }
   }
@@ -111,7 +113,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
         )
       }
       <View style={styles.caption}>
-        <Pressable onPress={!isOwnerPost ? profileNavigation : () => null}><Text style={[styles.textCaption, styles.textName]}>{`${user.name} `}</Text></Pressable>
+        <Pressable onPress={!isOwnerPost ? profileNavigation : () => null}><Text style={[styles.textCaption, styles.textName]}>{`${user.name || ''} `}</Text></Pressable>
         <Text style={styles.textCaption}>{caption}</Text>
       </View>
     </View>

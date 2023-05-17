@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
 import { fetchAllPosts, fetchPhoto } from "../api/posts";
+import Layout from "../components/Layout";
 import PostItem from "../components/PostItem";
 import CommentsSheet from "../components/CommentsSheet";
 
@@ -43,12 +44,13 @@ const DetailScreen = ({ route }: Props) => {
   useEffect(() => {
     const fetching = async () => {
       setLoading(true);
-      try {
-        const firstPost = await fetchPhoto(postId);
-        setData(() => [firstPost]);
+      const result = await fetchPhoto(postId);
+      if (!result.error) {
+        setData(() => [result]);
         fetchMore();
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something Went Wrong!' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
       setLoading(false);
     }
@@ -57,22 +59,23 @@ const DetailScreen = ({ route }: Props) => {
 
   const fetchMore = async () => {
     if (!canloadmore) return;
-    try {
-      setLoading(true);
-      const result = await fetchAllPosts({ isAuth, skip: totalPost, exclude: postId });
-      setLoading(false);
+    setLoading(true);
+    const result = await fetchAllPosts({ isAuth, skip: totalPost, exclude: postId });
+    if (!result.error) {
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data]);
       } else setCanloadmore(false);
-      setLoading(false);
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Something Went Wrong!' });
-      setLoading(false);
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
+    setLoading(false);
   }
 
+  if (!data) return null;
+
   return (
-    <>
+    <Layout>
       <FlatList
         data={data}
         keyExtractor={(item) => item._id}
@@ -82,7 +85,7 @@ const DetailScreen = ({ route }: Props) => {
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
-    </>
+    </Layout>
   );
 }
 

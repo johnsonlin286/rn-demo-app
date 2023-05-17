@@ -62,21 +62,22 @@ const AuthForm: React.FC<Props> = ({ isSignup }) => {
   const formSubmit = async () => {
     setLoading(true);
     if (isSignup) {
-      try {
-        const result = await signup(formState.name, formState.email, formState.password);
+      const result = await signup(formState.name, formState.email, formState.password);
+      if (!result.error) {
         navigation.navigate('Signin');
         setAlert({ color: 'green', message: `Your Account ${formState.email} successfully created!` });
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Signup failed!' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     } else {
-      try {
-        const result = await signin(formState.email, formState.password);
+      const result = await signin(formState.email, formState.password);
+      if (!result.error) {
         authenticate(result.token, result._id, result.name, result.email);
         navigation.navigate('Profile');
         setAlert({ color: 'green', message: `Hi ${result.name}, Welcome back!` });
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Signin failed!' });
+      } else {
+        setAlert({ color: 'red', message: 'Invalid Email or Password' });
       }
     }
     setLoading(false);

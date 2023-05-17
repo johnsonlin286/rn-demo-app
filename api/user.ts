@@ -20,6 +20,8 @@ export const fetchProfile = async (id: string) => {
       return response.profile;
     })
     .catch((error) => {
-      return error;
+      return {
+        error: error.response,
+      };
     });
 };

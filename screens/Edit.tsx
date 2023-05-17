@@ -50,16 +50,15 @@ const EditScreen = ({ route, navigation }: Props) => {
     }
     const fetching = async () => {
       // setLoading(true);
-      try {
-        const result = await fetchPhoto(editingId);
-        if (result) {
-          setFormState(() => ({
-            uri: result.imageUrl,
-            caption: result.caption
-          }))
-        }
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something Went Wrong!' });
+      const result = await fetchPhoto(editingId);
+      if (!result.error) {
+        setFormState(() => ({
+          uri: result.imageUrl,
+          caption: result.caption
+        }))
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
       // setLoading(false);
     }
@@ -74,16 +73,17 @@ const EditScreen = ({ route, navigation }: Props) => {
     setFormState(() => ({
       ...value
     }));
-    try {
-      const result = await editPost(editingId, value.caption);
+    const result = await editPost(editingId, value.caption);
+    if (!result.error) {
       setAlert({ color: 'green', message: 'Edit post success!' });
       navigation.reset({
         index: 1,
         routes: [{ name: 'Profile' }]
       });
       navigation.navigate('Profile');
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Edit post failed!' });
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
     setPosting(false);
   }

@@ -47,16 +47,15 @@ function UserScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (!userId) return;
     const fetchingUserProfile = async () => {
-      try {
-        const result = await fetchProfile(userId);
-        if (result) {
-          setUser(result);
-          navigation.setOptions({
-            title: result.name
-          });
-        }
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Failed fetching user data!' });
+      const result = await fetchProfile(userId);
+      if (!result.error) {
+        setUser(result);
+        navigation.setOptions({
+          title: result.name
+        });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     }
     fetchingUserProfile();
@@ -65,27 +64,27 @@ function UserScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (userId) {
       if (data.length === 0) {
-        fetchingUserPhoto();
+        fetchingUserPhotos();
       } else if (data.length >= totalPosts.current) {
         setCanloadmore(false);
       }
     }
   }, [userId, data, totalPosts, setCanloadmore]);
 
-  const fetchingUserPhoto = async () => {
+  const fetchingUserPhotos = async () => {
     if (!userId || !canloadmore) return;
     setLoading(true);
-    try {
-      const result = await fetchUserPhotos(userId, data.length);
+    const result = await fetchUserPhotos(userId, data.length);
+    if (!result.error) {
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data]);
         totalPosts.current = result.total;
       }
-      setLoading(false);
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Something went wrong!' });
-      setLoading(false);
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
+    setLoading(false);
   }
 
   return (
@@ -97,7 +96,7 @@ function UserScreen({ route, navigation }: Props) {
               data={data}
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
-              onEndReached={fetchingUserPhoto}
+              onEndReached={fetchingUserPhotos}
               onEndReachedThreshold={0.2}
               style={styles.container}
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} />}

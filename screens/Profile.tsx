@@ -58,36 +58,37 @@ function ProfileScreen({ navigation }: Props) {
   const fetchingUserPhoto = async () => {
     if (!user || !canloadmore) return;
     setLoading(true);
-    try {
-      const result = await fetchUserPhotos(user?.id, data.length);
+    const result = await fetchUserPhotos(user?.id, data.length);
+    if (!result.error) {
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data]);
         totalPosts.current = result.total;
       }
-      setLoading(false);
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Something went wrong!' });
-      setLoading(false);
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
+    setLoading(false);
   }
 
   const deletingPost = async () => {
     if (!deleteId) return;
     setDeleting(true);
-    try {
-      const clone = data;
-      const postIndex = clone.findIndex(item => item._id === deleteId);
-      if (postIndex === -1) {
-        setDeleteId(undefined);
-        setDeleting(false);
-        setAlert({ color: 'red', message: 'Post not found!' });
-        return;
-      }
-      const result = await deletePost(deleteId);
+    const clone = data;
+    const postIndex = clone.findIndex(item => item._id === deleteId);
+    if (postIndex === -1) {
+      setDeleteId(undefined);
+      setDeleting(false);
+      setAlert({ color: 'red', message: 'Post not found!' });
+      return;
+    }
+    const result = await deletePost(deleteId);
+    if (!result.error) {
       clone.splice(postIndex, 1)
       setData(clone);
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Something went wrong!' });
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
     setDeleteId(undefined);
     setDeleting(false);

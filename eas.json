@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 3.12.1"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "ENVI": "development",
+        "API_URL": "http://192.168.1.9:3030/graphql",
+        "GOOGLE_KEY": "AIzaSyCyyx0dfhlbTxFUxPOS4-vnxSQKqB1ciuo",
+        "FB_AUTH_DOMAIN": "jlin-firebase.firebaseapp.com",
+        "FB_DBURL": "https://jlin-firebase.firebaseio.com",
+        "FB_PROJECT_ID": "jlin-firebase",
+        "FB_STORAGE_BUCKET": "jlin-firebase.appspot.com",
+        "FB_MESSAGING_SENDER_ID": "917923038071",
+        "FB_APP_ID": "1:917923038071:web:495137eb3f41a2f8885772",
+        "FB_MEASUREMENT_ID": "G-TYB05HJH0R"
+      }
+    },
+    "production": {
+      "env": {
+        "ENVI": "production",
+        "API_URL": "https://nervous-bee-kerchief.cyclic.app",
+        "GOOGLE_KEY": "AIzaSyCyyx0dfhlbTxFUxPOS4-vnxSQKqB1ciuo",
+        "FB_AUTH_DOMAIN": "jlin-firebase.firebaseapp.com",
+        "FB_DBURL": "https://jlin-firebase.firebaseio.com",
+        "FB_PROJECT_ID": "jlin-firebase",
+        "FB_STORAGE_BUCKET": "jlin-firebase.appspot.com",
+        "FB_MESSAGING_SENDER_ID": "917923038071",
+        "FB_APP_ID": "1:917923038071:web:495137eb3f41a2f8885772",
+        "FB_MEASUREMENT_ID": "G-TYB05HJH0R"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

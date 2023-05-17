@@ -29,17 +29,19 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   }, [id]);
   const [comments, setComments] = useState<Array<CommentType>>([]);
   const [replying, setReplying] = useState<ReplyingType | undefined>();
+  const [submiting, setSubmiting] = useState(false);
 
   useEffect(() => {
     if (!postId) {
       return;
     }
     const fetchingComments = async () => {
-      try {
-        const result = await fetchComments(postId);
+      const result = await fetchComments(postId);
+      if (!result.error) {
         setComments(() => result.data);
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong!' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     }
     fetchingComments();
@@ -49,28 +51,32 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     if (!isAuth || !postId) {
       return;
     }
+    setSubmiting(true);
     if (!replying) {
-      try {
-        const newComment = await postComment(postId, message);
-        setComments(prev => [newComment, ...prev])
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong' });
+      const result = await postComment(postId, message);
+      if (!result.error) {
+        setComments(prev => [result, ...prev])
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     } else {
-      try {
-        const replyComment = await postReplyThread(replying.threadId, message);
+      const result = await postReplyThread(replying.threadId, message);
+      if (!result.error) {
         const clone = comments;
         clone.map(comment => {
           if (comment._id === replying.threadId) {
-            comment.reply?.push(replyComment);
+            comment.reply?.push(result);
           }
         })
         setComments(() => clone);
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
       setReplying(undefined);
     }
+    setSubmiting(false);
   }
 
   const replyToggleHandler = (threadId: string, replyTo: string) => {
@@ -83,36 +89,38 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const likeToggleHandler = async (type: string, id: string) => {
     const clone = comments;
     if (type === 'like') {
-      try {
-        const like = await likeComment(id);
+      const result = await likeComment(id);
+      if (!result.error) {
         clone.map(comment => {
           if (comment._id === id) {
-            comment.likes.push(like);
+            comment.likes.push(result);
           } else {
             comment.reply?.map(rply => {
               if (rply._id === id) {
-                rply.likes.push(like);
+                rply.likes.push(result);
               }
             })
           }
         });
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong!' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     } else if (type === 'dislike') {
-      try {
-        const dislike = await dislikeComment(id);
+      const result = await dislikeComment(id);
+      if (!result.error) {
         clone.map(comment => {
-          if (comment.likes.filter(like => like._id === dislike._id).length > 0) {
-            comment.likes = comment.likes.filter(like => like._id !== dislike._id);
+          if (comment.likes.filter(like => like._id === result._id).length > 0) {
+            comment.likes = comment.likes.filter(like => like._id !== result._id);
           } else {
             comment.reply?.map(rply => {
-              rply.likes = rply.likes.filter(like => like._id !== dislike._id);
+              rply.likes = rply.likes.filter(like => like._id !== result._id);
             })
           }
         });
-      } catch (error) {
-        setAlert({ color: 'red', message: 'Something went wrong!' });
+      } else {
+        const { data } = result.error;
+        setAlert({ color: 'red', message: data.errors[0].message });
       }
     }
     setComments(() => clone);
@@ -125,7 +133,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   return (
     <Sheet
       showFooter={true}
-      footer={isAuth ? <CommentForm userName={user?.name || ''} replyingTo={replying?.replyTo || ''} onSubmit={postingComment.bind(this)} cancelReply={() => setReplying(undefined)} /> : null}
+      footer={isAuth ? <CommentForm userName={user?.name || ''} replyingTo={replying?.replyTo || ''} onSubmit={postingComment.bind(this)} cancelReply={() => setReplying(undefined)} submiting={submiting} /> : null}
       onDismiss={onDismiss}
     >
       <BottomSheetView style={styles.container}>

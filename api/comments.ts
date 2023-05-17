@@ -44,8 +44,9 @@ export const fetchComments = async (photoId: string) => {
       return response.comments;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -77,7 +78,9 @@ export const postComment = async (photoId: string, message: string) => {
       return response.postComment;
     })
     .catch((error) => {
-      throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -108,7 +111,8 @@ export const postReplyThread = async (commentId: string, message: string) => {
       return response.postReply;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };

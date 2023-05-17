@@ -8,11 +8,12 @@ import IconBtn from './IconBtn';
 type Props = {
   userName: string,
   replyingTo?: string,
-  onSubmit: (message: string) => void
-  cancelReply: () => void
+  onSubmit: (message: string) => void,
+  cancelReply: () => void,
+  submiting?: boolean
 }
 
-const CommentForm: React.FC<Props> = ({ userName, replyingTo, onSubmit, cancelReply }) => {
+const CommentForm: React.FC<Props> = ({ userName, replyingTo, onSubmit, cancelReply, submiting }) => {
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const CommentForm: React.FC<Props> = ({ userName, replyingTo, onSubmit, cancelRe
       }
       <View style={styles.formContainer}>
         <InputField value={message} placeholder={`Comment as ${userName}`} style={styles.input} onChange={setMessage} />
-        <Button title="Reply" onPress={onSubmitHandler} />
+        <Button title="Reply" disabled={submiting} onPress={onSubmitHandler} />
       </View>
     </View>
   );

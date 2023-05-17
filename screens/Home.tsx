@@ -38,16 +38,17 @@ function HomeScreen({ navigation }: Props) {
 
   const fetching = async (refatch?: boolean) => {
     setLoading(true);
-    try {
-      const result = await fetchAllPosts({ isAuth, skip: refatch ? 0 : totalPost.current });
+    const result = await fetchAllPosts({ isAuth, skip: refatch ? 0 : totalPost.current });
+    if (!result.error) {
       totalPost.current = result.total;
       if (refatch) {
         setPosts(result.data);
       } else {
         setPosts(prev => [...prev, ...result.data]);
       }
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Fetching posts failed!' });
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
     setLoading(false);
     setRefreshing(false);

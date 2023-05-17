@@ -37,7 +37,9 @@ export const fetchAllPosts = async (payload: fetchPostsType) => {
       return response?.photos;
     })
     .catch((error) => {
-      return error;
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -46,9 +48,7 @@ export const fetchPhoto = async (photoId: string) => {
     query: `
       query photo($photoId: ID!) {
         photo(photoId: $photoId), {
-          _id
-          imageUrl
-          caption
+          _id imageUrl caption
           user {
             _id name
           }
@@ -70,7 +70,9 @@ export const fetchPhoto = async (photoId: string) => {
       return response.photo;
     })
     .catch((error) => {
-      return error;
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -106,7 +108,9 @@ export const fetchUserPhotos = async (userId: string, skip: number) => {
       return response.userPhotos;
     })
     .catch((error) => {
-      return error;
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -129,8 +133,9 @@ export const insertPost = async (imageUrl: string, caption: string) => {
       return response?.post;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -152,7 +157,9 @@ export const deletePost = async (photoId: string) => {
       return response.deletePost;
     })
     .catch((error) => {
-      return error;
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -175,6 +182,8 @@ export const editPost = async (photoId: string, caption: string) => {
       return response;
     })
     .catch((error) => {
-      return error;
+      return {
+        error: error.response,
+      };
     });
 };

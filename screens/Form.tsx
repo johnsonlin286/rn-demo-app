@@ -88,17 +88,18 @@ const FormScreen = ({ navigation }: Props) => {
   }, [uploadingImg]);
 
   const submitFormState = async () => {
-    try {
-      const result = await insertPost(formState.uri, formState.caption);
+    const result = await insertPost(formState.uri, formState.caption);
+    if (!result.error) {
       setAlert({ color: 'green', message: 'Posting success!' });
+      setFormState({} as FormTypes);
       navigation.reset({
         index: 0,
         routes: [{ name: 'Profile' }]
       });
-    } catch (error) {
-      setAlert({ color: 'red', message: 'Posting failed!' });
+    } else {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
     }
-    setFormState({} as FormTypes);
     setUploadingImg(false);
     setPosting(false);
   }

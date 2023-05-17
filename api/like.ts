@@ -22,8 +22,9 @@ export const likePost = async (postId: string) => {
       return response.like;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -46,8 +47,9 @@ export const dislikePost = async (likeId: string) => {
       return response.dislike;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -73,8 +75,9 @@ export const likeComment = async (commentId: string) => {
       return response.like;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
 
@@ -97,7 +100,8 @@ export const dislikeComment = async (likeId: string) => {
       return response.dislike;
     })
     .catch((error) => {
-      return error;
-      // throw new Error(error);
+      return {
+        error: error.response,
+      };
     });
 };
