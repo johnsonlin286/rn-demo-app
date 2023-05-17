@@ -1,16 +1,15 @@
 import API from "./config";
 
 type fetchPostsType = {
-  isAuth: boolean;
   exclude?: string;
   skip: number;
 };
 
 export const fetchAllPosts = async (payload: fetchPostsType) => {
-  const { isAuth, exclude, skip } = payload;
+  const { exclude, skip } = payload;
   const reqBody = {
     query: `
-      query photos($isAuth: Boolean!, $exclude: ID, $skip: Float, $limit: Float) {
+      query photos($exclude: ID, $skip: Float, $limit: Float) {
         photos(isAuth: $isAuth, exclude: $exclude, skip: $skip, limit: $limit) {
           data {
             _id imageUrl caption 
@@ -26,7 +25,6 @@ export const fetchAllPosts = async (payload: fetchPostsType) => {
       }
     `,
     variables: {
-      isAuth: isAuth,
       exclude: exclude || null,
       skip: skip,
       limit: 10,

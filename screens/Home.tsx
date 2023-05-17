@@ -38,7 +38,7 @@ function HomeScreen({ navigation }: Props) {
 
   const fetching = async (refatch?: boolean) => {
     setLoading(true);
-    const result = await fetchAllPosts({ isAuth, skip: refatch ? 0 : totalPost.current });
+    const result = await fetchAllPosts({ skip: refatch ? 0 : totalPost.current });
     if (!result.error) {
       totalPost.current = result.total;
       if (refatch) {
