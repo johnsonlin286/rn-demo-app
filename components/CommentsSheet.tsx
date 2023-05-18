@@ -30,6 +30,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const [comments, setComments] = useState<Array<CommentType>>([]);
   const [replying, setReplying] = useState<ReplyingType | undefined>();
   const [submiting, setSubmiting] = useState(false);
+  const [likeLoding, setLikeLoading] = useState(false);
 
   useEffect(() => {
     if (!postId) {
@@ -88,6 +89,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
 
   const likeToggleHandler = async (type: string, id: string) => {
     const clone = comments;
+    setLikeLoading(true);
     if (type === 'like') {
       const result = await likeComment(id);
       if (!result.error) {
@@ -124,6 +126,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
       }
     }
     setComments(() => clone);
+    setLikeLoading(false);
   }
 
   if (!postId) {
@@ -143,7 +146,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
               style={styles.commentList}
               data={comments} keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
-                <CommentItem comment={item} likeToggle={likeToggleHandler.bind(this)} replyToggle={replyToggleHandler.bind(this)} />
+                <CommentItem comment={item} likeToggle={likeToggleHandler.bind(this)} likeLoading={likeLoding} replyToggle={replyToggleHandler.bind(this)} />
               )}
             />
           ) : <Text>No Comments yet...</Text>

@@ -39,6 +39,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
   const { _id, caption, imageUrl, likes, user } = data;
   const [likesCount, setLikesCount] = useState<Array<LikesType>>([]);
   const [liked, setLiked] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (likes) setLikesCount(likes);
@@ -59,6 +60,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
       navigation.navigate('Auth', { screen: 'Signin' });
       return;
     }
+    setLoading(true);
     if (!liked) {
       const result = await likePost(_id);
       if (!result.error) {
@@ -78,6 +80,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
         setAlert({ color: 'red', message: data.errors[0].message });
       }
     }
+    setLoading(false);
   }
 
   const profileNavigation = () => {
@@ -95,7 +98,7 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
       </View>
       <View style={styles.actions}>
         <View style={styles.actionsLeft}>
-          <LikeBtn defaultValue={liked ? true : false} onPress={likeToggle} />
+          <LikeBtn defaultValue={liked ? true : false} loading={loading} onPress={likeToggle} />
           <IconBtn icon="md-chatbubbles-outline" size={30} onPress={onLoadComments.bind(this, _id)} style={styles.actionsComment} />
         </View>
         {
@@ -167,6 +170,7 @@ const styles = StyleSheet.create({
   },
   caption: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingLeft: 8,
     marginTop: 16,
   },

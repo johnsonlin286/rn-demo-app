@@ -10,10 +10,11 @@ import { AuthContext } from "../store/context/authContext";
 type Props = {
   comment: CommentType,
   likeToggle: (type: string, id: string) => void,
+  likeLoading: boolean,
   replyToggle: (id: string, replyTo: string) => void
 }
 
-const Comment: React.FC<Props> = ({ comment, likeToggle, replyToggle }) => {
+const Comment: React.FC<Props> = ({ comment, likeToggle, likeLoading, replyToggle }) => {
   const { isAuth, user } = useContext(AuthContext);
   const [liked, setLiked] = useState(false);
 
@@ -28,19 +29,19 @@ const Comment: React.FC<Props> = ({ comment, likeToggle, replyToggle }) => {
   }, [isAuth, comment, setLiked]);
 
   const likeToggleHandler = () => {
-    if (!isAuth) {
-      return;
-    }
-    if (!liked) {
-      likeToggle('like', comment._id);
-      setLiked(true);
-    } else {
-      const likeId = comment.likes.find(like => like.user._id === user?.id)?._id;
-      if (likeId) {
-        likeToggle('dislike', likeId);
-        setLiked(false);
-      };
-    }
+    // if (!isAuth) {
+    //   return;
+    // }
+    // if (!liked) {
+    //   likeToggle('like', comment._id);
+    //   setLiked(true);
+    // } else {
+    //   const likeId = comment.likes.find(like => like.user._id === user?.id)?._id;
+    //   if (likeId) {
+    //     likeToggle('dislike', likeId);
+    //     setLiked(false);
+    //   };
+    // }
   }
 
   return (
@@ -56,22 +57,22 @@ const Comment: React.FC<Props> = ({ comment, likeToggle, replyToggle }) => {
         </View>
       </View>
       <View style={styles.likeContainer}>
-        <LikeBtn size="sm" defaultValue={liked} onPress={likeToggleHandler} />
+        {/* <LikeBtn size="sm" defaultValue={liked} loading={likeLoading} onPress={likeToggleHandler} /> */}
       </View>
     </View>
   )
 }
 
-const CommentItem: React.FC<Props> = ({ comment, likeToggle, replyToggle }) => {
+const CommentItem: React.FC<Props> = ({ comment, likeToggle, likeLoading, replyToggle }) => {
   return (
     <View style={styles.container}>
-      <Comment comment={comment} likeToggle={likeToggle.bind(this)} replyToggle={replyToggle.bind(this)} />
+      <Comment comment={comment} likeToggle={likeToggle.bind(this)} likeLoading={likeLoading} replyToggle={replyToggle.bind(this)} />
       {
         comment.reply && comment.reply?.length > 0 && (
           <View style={styles.replyContainer}>
             {
               comment.reply.map(reply => (
-                <Comment key={reply._id} comment={reply} likeToggle={likeToggle.bind(this)} replyToggle={replyToggle.bind(this)} />
+                <Comment key={reply._id} comment={reply} likeToggle={likeToggle.bind(this)} likeLoading={likeLoading} replyToggle={replyToggle.bind(this)} />
               ))
             }
           </View>
