@@ -1,8 +1,9 @@
 import { ReactNode, useContext } from "react";
 import { ScrollView, View, StyleSheet } from "react-native";
 
-import Alert from "./Alert";
 import { AlertContext } from "../store/context/alertContext";
+import Alert from "./Alert";
+import AboutSheet from "./AboutSheet";
 
 type Props = {
   children: ReactNode
@@ -14,6 +15,7 @@ const Layout: React.FC<Props> = ({ children }) => {
     <View style={styles.container}>
       {isVisible && <Alert />}
       {children}
+      <AboutSheet />
     </View>
   );
 }

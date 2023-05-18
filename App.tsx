@@ -1,4 +1,5 @@
 import { useContext, useEffect } from 'react';
+import { StyleSheet, Pressable, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AuthContextProvider, { AuthContext } from './store/context/authContext';
 import AlertContextProvider, { AlertContext } from './store/context/alertContext';
+import AboutContextProvider, { AboutContext } from './store/context/aboutContext';
 import Colors from './utils/Colors';
 import HomeScreen from './screens/Home';
 import FormScreen from './screens/Form';
@@ -19,6 +21,7 @@ import is24Hours from './utils/is24Hours';
 import Avatar from './components/Avatar';
 import UserScreen from './screens/User';
 import EditScreen from './screens/Edit';
+import FlatButton from './components/FlatBtn';
 
 type RootStackParamList = {
   Index: undefined,
@@ -40,10 +43,16 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<RootTabStackParamList>();
 
 const RootStackNavigation = () => {
+  const { visibleToggle } = useContext(AboutContext);
+
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerRight: () => (
+        <FlatButton title='About' onPress={visibleToggle} style={styles.aboutBtn} />
+      ),
+    }}>
       <Stack.Screen name="Index" component={RootTabNavigation} options={{
-        headerShown: false
+        headerShown: false,
       }} />
       <Stack.Screen name="Detail" component={DetailScreen} options={{
         title: 'Explore',
@@ -58,9 +67,13 @@ const RootStackNavigation = () => {
 
 const RootTabNavigation = () => {
   const { user, isAuth } = useContext(AuthContext);
+  const { visibleToggle } = useContext(AboutContext);
 
   return (
     <Tabs.Navigator screenOptions={{
+      headerRight: () => (
+        <FlatButton title='About' onPress={visibleToggle} style={styles.aboutBtn} />
+      ),
       tabBarShowLabel: false,
       tabBarActiveTintColor: Colors.sky400,
       tabBarInactiveTintColor: Colors.gray300,
@@ -138,9 +151,17 @@ export default function App() {
       <StatusBar style="dark" />
       <AuthContextProvider>
         <AlertContextProvider>
-          <Navigations />
+          <AboutContextProvider>
+            <Navigations />
+          </AboutContextProvider>
         </AlertContextProvider>
       </AuthContextProvider>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  aboutBtn: {
+    marginRight: 15,
+  }
+});

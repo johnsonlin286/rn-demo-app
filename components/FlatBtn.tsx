@@ -6,9 +6,10 @@ type Props = {
   title: string
   onPress: () => void
   style?: ViewStyle
+  textStyle?: TextStyle
 }
 
-const FlatButton: React.FC<Props> = ({ title, onPress, style }) => {
+const FlatButton: React.FC<Props> = ({ title, onPress, style, textStyle }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const onPressedHandler = () => {
@@ -18,7 +19,7 @@ const FlatButton: React.FC<Props> = ({ title, onPress, style }) => {
 
   return (
     <Pressable style={[styles.button, style || null]} onPress={onPressedHandler} onPressOut={() => setIsPressed(false)}>
-      <Text style={[styles.text, isPressed ? styles.pressed : null]}>{title}</Text>
+      <Text style={[styles.text, textStyle || null, isPressed ? styles.pressed : null]}>{title}</Text>
     </Pressable>
   );
 };
