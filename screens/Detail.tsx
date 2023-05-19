@@ -8,6 +8,7 @@ import { fetchAllPosts, fetchPhoto } from "../api/posts";
 import Layout from "../components/Layout";
 import PostItem from "../components/PostItem";
 import CommentsSheet from "../components/CommentsSheet";
+import Placeholder from "../components/placeholder/PostItem";
 
 type RootStackParamList = {
   Home: undefined,
@@ -86,6 +87,7 @@ const DetailScreen = ({ route }: Props) => {
         renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
         onEndReached={fetchMore}
         onEndReachedThreshold={0.2}
+        ListFooterComponent={loading ? <Placeholder /> : null}
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />

@@ -1,12 +1,12 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { FlatList, StyleSheet, View } from "react-native";
 
 import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
 import { fetchAllPosts } from "../api/posts";
 import Layout from "../components/Layout";
 import ImageThumbnail from "../components/ImageThumbnail";
+import Placeholder from '../components/placeholder/ImageThumbnail';
 
 type PostItemType = {
   _id: string,
@@ -57,6 +57,18 @@ function HomeScreen() {
     fetching();
   }
 
+  const renderPlaceholder = () => {
+    const items = [];
+    for (let i = 0; i < 3; i++) {
+      items.push(<Placeholder key={i} />)
+    }
+    return (
+      <View style={{ flexDirection: 'row' }}>
+        {items.map(item => item)}
+      </View>
+    )
+  }
+
   return (
     <Layout>
       {
@@ -74,6 +86,7 @@ function HomeScreen() {
             fetching(true);
           }}
           refreshing={refreshing}
+          ListFooterComponent={loading ? renderPlaceholder() : null}
           style={styles.listContainer}
         />)
       }

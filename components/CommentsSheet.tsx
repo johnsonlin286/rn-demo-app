@@ -11,6 +11,7 @@ import Sheet from "./Sheet";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import Avatar from "./Avatar";
+import Placeholder from "./placeholder/CommentItem";
 
 type ReplyingType = {
   threadId: string,
@@ -138,12 +139,20 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
             )}
             ListHeaderComponent={renderListHeader}
             onEndReached={fetchingComments.bind(this, true)}
+            ListFooterComponent={fetching ? <Placeholder /> : null}
             style={styles.container}
           />
-        ) : (
+        ) : !fetching && (
           <View style={styles.container}>
             {renderListHeader()}
             <View style={styles.emptyContainer}><Text>No Comment yet...</Text></View>
+          </View>
+        )
+      }
+      {
+        fetching && (
+          <View style={styles.container}>
+            <Placeholder />
           </View>
         )
       }

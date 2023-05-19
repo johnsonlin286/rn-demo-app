@@ -48,7 +48,7 @@ const RootStackNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{
       headerRight: () => (
-        <FlatButton title='About' onPress={visibleToggle} style={styles.aboutBtn} />
+        <FlatButton title='About' onPress={visibleToggle} />
       ),
     }}>
       <Stack.Screen name="Index" component={RootTabNavigation} options={{
@@ -110,8 +110,14 @@ const RootTabNavigation = () => {
 }
 
 const AuthNavigation = () => {
+  const { visibleToggle } = useContext(AboutContext);
+
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerRight: () => (
+        <FlatButton title='About' onPress={visibleToggle} />
+      ),
+    }}>
       <Stack.Screen name='Signin' component={SigninScreen} />
       <Stack.Screen name='Signup' component={SignupScreen} />
     </Stack.Navigator>
@@ -162,6 +168,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   aboutBtn: {
-    marginRight: 15,
+    marginRight: 16,
   }
 });

@@ -11,6 +11,7 @@ import { deletePost, fetchUserPhotos } from "../api/posts";
 import PostItem from "../components/PostItem";
 import CommentsSheet from "../components/CommentsSheet";
 import DeleteModal from "../components/DeleteModal";
+import Placeholder from "../components/placeholder/PostItem";
 
 type RootStackParamList = {
   Profile: undefined
@@ -113,6 +114,7 @@ function ProfileScreen({ navigation }: Props) {
               onEndReachedThreshold={0.2}
               style={styles.container}
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />}
+              ListFooterComponent={loading ? <Placeholder /> : null}
             />
             <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
             <DeleteModal isVisible={deleteId ? true : false} deleting={deleting} onConfirm={deletingPost} onDismiss={() => setDeleteId(undefined)} />
