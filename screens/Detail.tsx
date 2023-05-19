@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -33,12 +33,9 @@ const DetailScreen = ({ route }: Props) => {
   }, [route]);
   const { setAlert } = useContext(AlertContext);
   const [data, setData] = useState<Array<DataType>>([]);
-  const totalPost = useMemo(() => {
-    return data?.length
-  }, [data]);
+  const totalPost = useRef(10);
   const [pickedPostId, setPickedPostId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
-  const [canloadmore, setCanloadmore] = useState(true);
 
   useEffect(() => {
     const fetching = async () => {
@@ -46,7 +43,6 @@ const DetailScreen = ({ route }: Props) => {
       const result = await fetchPhoto(postId);
       if (result.photo) {
         setData(() => [result.photo]);
-        setCanloadmore(true);
       } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
@@ -59,13 +55,16 @@ const DetailScreen = ({ route }: Props) => {
   }, [postId]);
 
   const fetchMore = async () => {
-    if (!canloadmore) return;
+    if (data.length >= totalPost.current) {
+      return;
+    };
     setLoading(true);
-    const result = await fetchAllPosts({ skip: totalPost, exclude: postId });
+    const result = await fetchAllPosts({ skip: data.length, exclude: postId });
     if (result.data) {
+      totalPost.current = result.total;
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data.reverse()]);
-      } else setCanloadmore(false);
+      }
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
@@ -75,17 +74,18 @@ const DetailScreen = ({ route }: Props) => {
     setLoading(false);
   }
 
-  if (!data) return null;
-
   return (
     <Layout>
+      {
+        !data && <Placeholder />
+      }
       <FlatList
         data={data}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
         onEndReached={fetchMore}
         onEndReachedThreshold={0.2}
-        ListFooterComponent={canloadmore ? <Placeholder /> : null}
+        ListFooterComponent={loading ? <Placeholder /> : null}
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />

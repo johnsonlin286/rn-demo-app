@@ -34,10 +34,9 @@ function UserScreen({ route, navigation }: Props) {
   const [userId, setUserId] = useState<string>();
   const [user, setUser] = useState<UserType>();
   const [data, setData] = useState<Array<DataType>>([]);
-  const totalPosts = useRef(0);
+  const totalPosts = useRef(10);
   const [pickedPostId, setPickedPostId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
-  const [canloadmore, setCanloadmore] = useState(true);
 
   useLayoutEffect(() => {
     if (route.params && route.params.id) {
@@ -66,22 +65,18 @@ function UserScreen({ route, navigation }: Props) {
 
   useEffect(() => {
     if (userId) {
-      if (data.length === 0) {
-        fetchingUserPhotos();
-      } else if (data.length >= totalPosts.current) {
-        setCanloadmore(false);
-      }
+      fetchingUserPhotos();
     }
-  }, [userId, data, totalPosts, setCanloadmore]);
+  }, [userId]);
 
   const fetchingUserPhotos = async () => {
-    if (!userId || !canloadmore) return;
+    if (data.length >= totalPosts.current || !userId) return;
     setLoading(true);
     const result = await fetchUserPhotos(userId, data.length);
     if (result.data) {
+      totalPosts.current = result.total;
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data.reverse()]);
-        totalPosts.current = result.total;
       }
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;

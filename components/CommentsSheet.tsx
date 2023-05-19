@@ -31,26 +31,23 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   }, [id]);
   const [photo, setPhoto] = useState<PhotoType | undefined>();
   const [comments, setComments] = useState<Array<CommentType>>([]);
-  const totalComments = useRef(0);
+  const totalComments = useRef(10);
   const [fetching, setFetching] = useState(true);
   const [replying, setReplying] = useState<ReplyingType | undefined>();
   const [submiting, setSubmiting] = useState(false);
 
   useEffect(() => {
-    fetchingComments(false);
+    if (postId) fetchingComments(false);
   }, [postId]);
 
   const fetchingComments = async (refatch: boolean) => {
-    if (!postId) return;
-    if (refatch && comments.length >= totalComments.current) {
-      return;
-    }
+    if (comments.length >= totalComments.current || !postId) return;
     setFetching(true);
     const result = await fetchComments(postId);
     if (result.photo) setPhoto(result.photo);
     if (result.data) {
-      setComments(prev => [...prev, ...result.data]);
       totalComments.current = result.total;
+      setComments(prev => [...prev, ...result.data]);
 
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;

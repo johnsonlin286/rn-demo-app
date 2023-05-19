@@ -35,11 +35,10 @@ function ProfileScreen({ navigation }: Props) {
   const { setAlert } = useContext(AlertContext);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [data, setData] = useState<Array<DataType>>([]);
-  const totalPosts = useRef(0);
+  const totalPosts = useRef(10);
   const [pickedPostId, setPickedPostId] = useState<string | undefined>();
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
-  const [canloadmore, setCanloadmore] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
   useLayoutEffect(() => {
@@ -49,21 +48,17 @@ function ProfileScreen({ navigation }: Props) {
   }, [navigation, isAuth, user]);
 
   useEffect(() => {
-    if (data.length === 0) {
-      fetchingUserPhoto();
-    } else if (data.length >= totalPosts.current) {
-      setCanloadmore(false);
-    }
-  }, [data, totalPosts, setCanloadmore]);
+    fetchingUserPhoto();
+  }, []);
 
   const fetchingUserPhoto = async () => {
-    if (!user || !canloadmore) return;
+    if (data.length >= totalPosts.current || !user) return;
     setLoading(true);
     const result = await fetchUserPhotos(user?.id, data.length);
     if (result.data) {
+      totalPosts.current = result.total;
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data.reverse()]);
-        totalPosts.current = result.total;
       }
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;

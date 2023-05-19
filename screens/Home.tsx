@@ -16,7 +16,7 @@ type PostItemType = {
 function HomeScreen() {
   const { user } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
-  const totalPost = useRef(0);
+  const totalPost = useRef(10);
   const [posts, setPosts] = useState<Array<PostItemType>>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -32,7 +32,7 @@ function HomeScreen() {
 
   const fetching = async (refatch?: boolean) => {
     setLoading(true);
-    const result = await fetchAllPosts({ skip: refatch ? 0 : totalPost.current });
+    const result = await fetchAllPosts({ skip: refatch ? 0 : posts.length });
     if (result.data) {
       totalPost.current = result.total;
       if (refatch) {
