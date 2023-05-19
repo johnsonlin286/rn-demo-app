@@ -1,15 +1,17 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text } from "react-native";
-import { BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { StyleSheet, Text, View } from "react-native";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
+import Colors from "../utils/Colors";
 import { fetchComments, postComment, postReplyThread } from "../api/comments";
 import { likeComment, dislikeComment } from "../api/like";
 import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
-import { CommentType } from "../types/types";
+import { CommentType, PhotoType } from "../types/types";
 import Sheet from "./Sheet";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
+import Avatar from "./Avatar";
 
 type ReplyingType = {
   threadId: string,
@@ -27,6 +29,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const postId = useMemo(() => {
     return id
   }, [id]);
+  const [photo, setPhoto] = useState<PhotoType | undefined>();
   const [comments, setComments] = useState<Array<CommentType>>([]);
   const [replying, setReplying] = useState<ReplyingType | undefined>();
   const [submiting, setSubmiting] = useState(false);
@@ -40,6 +43,7 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
       const result = await fetchComments(postId);
       if (result.data) {
         setComments(() => result.data);
+        setPhoto(result.photo);
       } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
@@ -49,6 +53,17 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     }
     fetchingComments();
   }, [postId]);
+
+  const renderListHeader = () => {
+    if (!photo) return null;
+
+    return (
+      <View style={styles.listHeaderContainer}>
+        <Avatar text={photo.user?.name} />
+        <Text style={styles.listHeaderCaption}><Text style={styles.textBold}>{photo.user?.name}</Text> {photo.caption}</Text>
+      </View>
+    )
+  }
 
   const postingComment = async (message: string) => {
     if (!isAuth || !postId) {
@@ -145,19 +160,18 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
       footer={isAuth ? <CommentForm userName={user?.name || ''} replyingTo={replying?.replyTo || ''} onSubmit={postingComment.bind(this)} cancelReply={() => setReplying(undefined)} submiting={submiting} /> : null}
       onDismiss={onDismiss}
     >
-      <BottomSheetView style={styles.container}>
-        {
-          comments && comments.length > 0 ? (
-            <BottomSheetFlatList
-              style={styles.commentList}
-              data={comments} keyExtractor={(item) => item._id}
-              renderItem={({ item }) => (
-                <CommentItem comment={item} likeToggle={likeToggleHandler.bind(this)} likeLoading={likeLoding} replyToggle={replyToggleHandler.bind(this)} />
-              )}
-            />
-          ) : <Text>No Comments yet...</Text>
-        }
-      </BottomSheetView>
+      {
+        comments && comments.length > 0 ? (
+          <BottomSheetFlatList
+            data={comments} keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <CommentItem comment={item} likeToggle={likeToggleHandler.bind(this)} likeLoading={likeLoding} replyToggle={replyToggleHandler.bind(this)} />
+            )}
+            ListHeaderComponent={renderListHeader}
+            style={styles.container}
+          />
+        ) : <Text>No Comments yet...</Text>
+      }
     </Sheet>
   );
 }
@@ -170,7 +184,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
-  commentList: {
-    flex: 1
+  listHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray300,
+    paddingBottom: 16,
+    marginBottom: 16,
+  },
+  listHeaderCaption: {
+    flexWrap: 'wrap',
+    marginHorizontal: 12
+  },
+  textBold: {
+    fontWeight: 'bold'
   }
 });

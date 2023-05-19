@@ -18,3 +18,13 @@ export type CommentType = {
   likes: LikesType[];
   reply?: ReplyType[];
 };
+
+export type PhotoType = {
+  _id: string;
+  imageUrl?: string;
+  caption?: string;
+  user?: UserType;
+  likes?: LikesType[];
+  comments?: CommentType[];
+  created_at?: string;
+};

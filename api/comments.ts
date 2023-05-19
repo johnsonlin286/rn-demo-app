@@ -29,6 +29,12 @@ export const fetchComments = async (photoId: string) => {
               }
             }
           }
+          photo {
+            _id caption
+            user {
+              _id name
+            }
+          }
           total
         }
       }
