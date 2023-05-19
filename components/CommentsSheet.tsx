@@ -46,10 +46,11 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     }
     setFetching(true);
     const result = await fetchComments(postId);
+    if (result.photo) setPhoto(result.photo);
     if (result.data) {
       setComments(prev => [...prev, ...result.data]);
       totalComments.current = result.total;
-      setPhoto(result.photo);
+
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
@@ -139,7 +140,12 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
             onEndReached={fetchingComments.bind(this, true)}
             style={styles.container}
           />
-        ) : <View style={styles.emptyContainer}><Text>No Comment yet...</Text></View>
+        ) : (
+          <View style={styles.container}>
+            {renderListHeader()}
+            <View style={styles.emptyContainer}><Text>No Comment yet...</Text></View>
+          </View>
+        )
       }
     </Sheet>
   );

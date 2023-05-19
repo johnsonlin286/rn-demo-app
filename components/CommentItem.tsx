@@ -23,12 +23,12 @@ const Comment: React.FC<Props> = ({ comment, replyToggle }) => {
 
   useEffect(() => {
     if (isAuth && comment) {
-      setCommentData(comment);
       const isLike = comment.likes.find(like => like.user._id === user?.id);
       if (isLike) {
         setLiked(true);
       } else setLiked(false);
     }
+    setCommentData(comment);
   }, [isAuth, comment, setLiked]);
 
   const likeToggleHandler = async () => {

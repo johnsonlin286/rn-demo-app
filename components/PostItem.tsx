@@ -120,8 +120,8 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
         )
       }
       <View style={styles.caption}>
-        <Pressable onPress={!isOwnerPost ? profileNavigation : () => null}><Text style={[styles.textCaption, styles.textName]}>{`${user.name || ''} `}</Text></Pressable>
-        <Text style={styles.textCaption}>{caption}</Text>
+        <Pressable onPress={!isOwnerPost ? profileNavigation : () => null}><Text style={[styles.textName]}>{`${user.name || ''} `}</Text></Pressable>
+        <Text>{caption}</Text>
       </View>
     </View>
   );
@@ -177,9 +177,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingLeft: 8,
     marginTop: 16,
-  },
-  textCaption: {
-    fontStyle: 'italic',
   },
   textName: {
     fontWeight: 'bold'
