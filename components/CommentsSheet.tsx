@@ -1,10 +1,9 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
 import Colors from "../utils/Colors";
 import { fetchComments, postComment, postReplyThread } from "../api/comments";
-import { likeComment, dislikeComment } from "../api/like";
 import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
 import { CommentType, PhotoType } from "../types/types";
@@ -31,28 +30,34 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   }, [id]);
   const [photo, setPhoto] = useState<PhotoType | undefined>();
   const [comments, setComments] = useState<Array<CommentType>>([]);
+  const totalComments = useRef(0);
+  const [fetching, setFetching] = useState(true);
   const [replying, setReplying] = useState<ReplyingType | undefined>();
   const [submiting, setSubmiting] = useState(false);
-  const [likeLoding, setLikeLoading] = useState(false);
 
   useEffect(() => {
-    if (!postId) {
+    fetchingComments(false);
+  }, [postId]);
+
+  const fetchingComments = async (refatch: boolean) => {
+    if (!postId) return;
+    if (refatch && comments.length >= totalComments.current) {
       return;
     }
-    const fetchingComments = async () => {
-      const result = await fetchComments(postId);
-      if (result.data) {
-        setComments(() => result.data);
-        setPhoto(result.photo);
-      } else if (result.error && result.error !== undefined) {
-        const { data } = result.error;
-        setAlert({ color: 'red', message: data.errors[0].message });
-      } else {
-        setAlert({ color: 'red', message: 'Networ Error' });
-      }
+    setFetching(true);
+    const result = await fetchComments(postId);
+    if (result.data) {
+      setComments(prev => [...prev, ...result.data]);
+      totalComments.current = result.total;
+      setPhoto(result.photo);
+    } else if (result.error && result.error !== undefined) {
+      const { data } = result.error;
+      setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Networ Error' });
     }
-    fetchingComments();
-  }, [postId]);
+    setFetching(false);
+  }
 
   const renderListHeader = () => {
     if (!photo) return null;
@@ -108,46 +113,9 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     }));
   }
 
-  const likeToggleHandler = async (type: string, id: string) => {
-    const clone = comments;
-    setLikeLoading(true);
-    if (type === 'like') {
-      const result = await likeComment(id);
-      if (!result.error) {
-        clone.map(comment => {
-          if (comment._id === id) {
-            comment.likes.push(result);
-          } else {
-            comment.reply?.map(rply => {
-              if (rply._id === id) {
-                rply.likes.push(result);
-              }
-            })
-          }
-        });
-      } else {
-        const { data } = result.error;
-        setAlert({ color: 'red', message: data.errors[0].message });
-      }
-    } else if (type === 'dislike') {
-      const result = await dislikeComment(id);
-      if (!result.error) {
-        clone.map(comment => {
-          if (comment.likes.filter(like => like._id === result._id).length > 0) {
-            comment.likes = comment.likes.filter(like => like._id !== result._id);
-          } else {
-            comment.reply?.map(rply => {
-              rply.likes = rply.likes.filter(like => like._id !== result._id);
-            })
-          }
-        });
-      } else {
-        const { data } = result.error;
-        setAlert({ color: 'red', message: data.errors[0].message });
-      }
-    }
-    setComments(() => clone);
-    setLikeLoading(false);
+  const dismissHandler = () => {
+    setComments([]);
+    onDismiss();
   }
 
   if (!postId) {
@@ -158,19 +126,20 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     <Sheet
       showFooter={true}
       footer={isAuth ? <CommentForm userName={user?.name || ''} replyingTo={replying?.replyTo || ''} onSubmit={postingComment.bind(this)} cancelReply={() => setReplying(undefined)} submiting={submiting} /> : null}
-      onDismiss={onDismiss}
+      onDismiss={dismissHandler}
     >
       {
         comments && comments.length > 0 ? (
           <BottomSheetFlatList
             data={comments} keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <CommentItem comment={item} likeToggle={likeToggleHandler.bind(this)} likeLoading={likeLoding} replyToggle={replyToggleHandler.bind(this)} />
+              <CommentItem comment={item} replyToggle={replyToggleHandler.bind(this)} />
             )}
             ListHeaderComponent={renderListHeader}
+            onEndReached={fetchingComments.bind(this, true)}
             style={styles.container}
           />
-        ) : <Text>No Comments yet...</Text>
+        ) : <View style={styles.emptyContainer}><Text>No Comment yet...</Text></View>
       }
     </Sheet>
   );
@@ -198,5 +167,9 @@ const styles = StyleSheet.create({
   },
   textBold: {
     fontWeight: 'bold'
+  },
+  emptyContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });

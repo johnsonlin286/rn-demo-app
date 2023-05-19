@@ -12,7 +12,7 @@ type Props = {
 
 const Sheet: React.FC<Props> = ({ children, showFooter, footer, onDismiss }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['50%', '75%'], []);
+  const snapPoints = useMemo(() => ['75%'], []);
 
   const backdropElm = useCallback((props: any) => (
     <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={1} pressBehavior="none" />
