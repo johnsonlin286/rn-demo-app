@@ -9,6 +9,7 @@ import Layout from "../components/Layout";
 import PostItem from "../components/PostItem";
 import ProfileHeading from "../components/ProfileHeading";
 import CommentsSheet from "../components/CommentsSheet";
+import Placeholder from "../components/placeholder/PostItem";
 import { UserType } from "../types/types";
 
 type RootStackParamList = {
@@ -104,6 +105,7 @@ function UserScreen({ route, navigation }: Props) {
               onEndReachedThreshold={0.2}
               style={styles.container}
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} />}
+              ListFooterComponent={loading ? <Placeholder /> : null}
             />
             <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
           </>
