@@ -4,10 +4,10 @@ import { useNavigation } from "@react-navigation/native";
 
 import Colors from "../utils/Colors";
 import { AuthContext } from "../store/context/authContext";
+import { AlertContext } from "../store/context/alertContext";
 import { likePost, dislikePost } from "../api/like";
 import IconBtn from "./IconBtn";
 import LikeBtn from "./LikeBtn";
-import { AlertContext } from "../store/context/alertContext";
 
 type UserType = {
   _id: string,
@@ -63,21 +63,25 @@ const PostItem: React.FC<Props> = ({ data, onLoadComments, isOwnerPost, onDelete
     setLoading(true);
     if (!liked) {
       const result = await likePost(_id);
-      if (!result.error) {
-        setLikesCount((prev) => [...prev, result]);
+      if (result.like) {
+        setLikesCount((prev) => [...prev, result.like]);
         setLiked(result._id);
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Network Error' });
       }
     } else {
       const result = await dislikePost(liked);
-      if (!result.error) {
-        setLikesCount(() => likesCount.filter(like => like._id !== result._id));
+      if (result.dislike) {
+        setLikesCount(() => likesCount.filter(like => like._id !== result.dislike._id));
         setLiked(undefined);
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Network Error' });
       }
     }
     setLoading(false);

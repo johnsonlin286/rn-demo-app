@@ -17,7 +17,7 @@ export const signup = async (name: string, email: string, password: string) => {
   };
   return await API(reqbody)
     .then((response: any) => {
-      return response?.signup;
+      return response;
     })
     .catch((error) => {
       return {
@@ -42,7 +42,7 @@ export const signin = async (email: string, password: string) => {
   };
   return await API(reqbody)
     .then((response: any) => {
-      return response?.signin;
+      return response;
     })
     .catch((error) => {
       return {

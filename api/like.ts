@@ -19,7 +19,7 @@ export const likePost = async (postId: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.like;
+      return response;
     })
     .catch((error) => {
       return {
@@ -44,7 +44,7 @@ export const dislikePost = async (likeId: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.dislike;
+      return response;
     })
     .catch((error) => {
       return {
@@ -72,7 +72,7 @@ export const likeComment = async (commentId: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.like;
+      return response;
     })
     .catch((error) => {
       return {
@@ -97,7 +97,7 @@ export const dislikeComment = async (likeId: string) => {
   };
   return API(reqBody)
     .then((response: any) => {
-      return response.dislike;
+      return response;
     })
     .catch((error) => {
       return {

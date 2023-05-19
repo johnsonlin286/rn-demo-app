@@ -38,11 +38,13 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     }
     const fetchingComments = async () => {
       const result = await fetchComments(postId);
-      if (!result.error) {
+      if (result.data) {
         setComments(() => result.data);
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Networ Error' });
       }
     }
     fetchingComments();
@@ -55,25 +57,29 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
     setSubmiting(true);
     if (!replying) {
       const result = await postComment(postId, message);
-      if (!result.error) {
-        setComments(prev => [result, ...prev])
-      } else {
+      if (result.postComment) {
+        setComments(prev => [result.postComment, ...prev]);
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Networ Error' });
       }
     } else {
       const result = await postReplyThread(replying.threadId, message);
-      if (!result.error) {
+      if (result.postReply) {
         const clone = comments;
         clone.map(comment => {
           if (comment._id === replying.threadId) {
-            comment.reply?.push(result);
+            comment.reply?.push(result.postReply);
           }
         })
         setComments(() => clone);
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Networ Error' });
       }
       setReplying(undefined);
     }

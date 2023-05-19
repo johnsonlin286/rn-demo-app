@@ -59,14 +59,16 @@ function ProfileScreen({ navigation }: Props) {
     if (!user || !canloadmore) return;
     setLoading(true);
     const result = await fetchUserPhotos(user?.id, data.length);
-    if (!result.error) {
+    if (result.data) {
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data.reverse()]);
         totalPosts.current = result.total;
       }
-    } else {
+    } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Network Error' });
     }
     setLoading(false);
   }
@@ -83,12 +85,14 @@ function ProfileScreen({ navigation }: Props) {
       return;
     }
     const result = await deletePost(deleteId);
-    if (!result.error) {
+    if (result.deletePost) {
       clone.splice(postIndex, 1)
       setData(clone);
-    } else {
+    } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Network Error' });
     }
     setDeleteId(undefined);
     setDeleting(false);

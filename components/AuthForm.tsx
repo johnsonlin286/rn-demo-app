@@ -63,21 +63,25 @@ const AuthForm: React.FC<Props> = ({ isSignup }) => {
     setLoading(true);
     if (isSignup) {
       const result = await signup(formState.name, formState.email, formState.password);
-      if (!result.error) {
+      if (result.signup) {
         navigation.navigate('Signin');
         setAlert({ color: 'green', message: `Your Account ${formState.email} successfully created!` });
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Network Error' });
       }
     } else {
       const result = await signin(formState.email, formState.password);
-      if (!result.error) {
-        authenticate(result.token, result._id, result.name, result.email);
+      if (result.signin) {
+        authenticate(result.signin.token, result.signin._id, result.signin.name, result.signin.email);
         navigation.navigate('Profile');
-        setAlert({ color: 'green', message: `Hi ${result.name}, Welcome back!` });
-      } else {
+        setAlert({ color: 'green', message: `Hi ${result.signin.name}, Welcome back!` });
+      } else if (result.error && result.error !== undefined) {
         setAlert({ color: 'red', message: 'Invalid Email or Password' });
+      } else {
+        setAlert({ color: 'red', message: 'Network Error' });
       }
     }
     setLoading(false);

@@ -45,12 +45,14 @@ const DetailScreen = ({ route }: Props) => {
     const fetching = async () => {
       setLoading(true);
       const result = await fetchPhoto(postId);
-      if (!result.error) {
-        setData(() => [result]);
+      if (result.photo) {
+        setData(() => [result.photo]);
         fetchMore();
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Network Error' });
       }
       setLoading(false);
     }
@@ -61,13 +63,15 @@ const DetailScreen = ({ route }: Props) => {
     if (!canloadmore) return;
     setLoading(true);
     const result = await fetchAllPosts({ skip: totalPost, exclude: postId });
-    if (!result.error) {
+    if (result.data) {
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data.reverse()]);
       } else setCanloadmore(false);
-    } else {
+    } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Network Error' });
     }
     setLoading(false);
   }

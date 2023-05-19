@@ -13,14 +13,8 @@ type PostItemType = {
   imageUrl: string,
 }
 
-type RootStackParamList = {
-  Home: undefined
-}
-
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
-
-function HomeScreen({ navigation }: Props) {
-  const { isAuth, user } = useContext(AuthContext);
+function HomeScreen() {
+  const { user } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
   const totalPost = useRef(0);
   const [posts, setPosts] = useState<Array<PostItemType>>([]);
@@ -39,16 +33,18 @@ function HomeScreen({ navigation }: Props) {
   const fetching = async (refatch?: boolean) => {
     setLoading(true);
     const result = await fetchAllPosts({ skip: refatch ? 0 : totalPost.current });
-    if (!result.error) {
+    if (result.data) {
       totalPost.current = result.total;
       if (refatch) {
         setPosts(result.data.reverse());
       } else {
         setPosts(prev => [...prev, ...result.data.reverse()]);
       }
-    } else {
+    } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Network Error' });
     }
     setLoading(false);
     setRefreshing(false);

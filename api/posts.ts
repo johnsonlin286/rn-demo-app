@@ -65,7 +65,7 @@ export const fetchPhoto = async (photoId: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.photo;
+      return response;
     })
     .catch((error) => {
       return {
@@ -128,7 +128,7 @@ export const insertPost = async (imageUrl: string, caption: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response?.post;
+      return response;
     })
     .catch((error) => {
       return {
@@ -152,7 +152,7 @@ export const deletePost = async (photoId: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.deletePost;
+      return response;
     })
     .catch((error) => {
       return {

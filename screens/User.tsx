@@ -48,14 +48,16 @@ function UserScreen({ route, navigation }: Props) {
     if (!userId) return;
     const fetchingUserProfile = async () => {
       const result = await fetchProfile(userId);
-      if (!result.error) {
-        setUser(result);
+      if (result.profile) {
+        setUser(result.profile);
         navigation.setOptions({
           title: result.name
         });
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Networ Error' });
       }
     }
     fetchingUserProfile();
@@ -75,14 +77,16 @@ function UserScreen({ route, navigation }: Props) {
     if (!userId || !canloadmore) return;
     setLoading(true);
     const result = await fetchUserPhotos(userId, data.length);
-    if (!result.error) {
+    if (result.data) {
       if (result.data.length > 0) {
         setData(prev => [...prev, ...result.data.reverse()]);
         totalPosts.current = result.total;
       }
-    } else {
+    } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Networ Error' });
     }
     setLoading(false);
   }

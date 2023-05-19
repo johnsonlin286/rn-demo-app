@@ -51,14 +51,16 @@ const EditScreen = ({ route, navigation }: Props) => {
     const fetching = async () => {
       // setLoading(true);
       const result = await fetchPhoto(editingId);
-      if (!result.error) {
+      if (result.photo) {
         setFormState(() => ({
-          uri: result.imageUrl,
-          caption: result.caption
+          uri: result.photo.imageUrl,
+          caption: result.photo.caption
         }))
-      } else {
+      } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
+      } else {
+        setAlert({ color: 'red', message: 'Network Error' });
       }
       // setLoading(false);
     }
@@ -74,16 +76,18 @@ const EditScreen = ({ route, navigation }: Props) => {
       ...value
     }));
     const result = await editPost(editingId, value.caption);
-    if (!result.error) {
+    if (result.updatePost) {
       setAlert({ color: 'green', message: 'Edit post success!' });
       navigation.reset({
         index: 1,
         routes: [{ name: 'Profile' }]
       });
       navigation.navigate('Profile');
-    } else {
+    } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
+    } else {
+      setAlert({ color: 'red', message: 'Network Error' });
     }
     setPosting(false);
   }

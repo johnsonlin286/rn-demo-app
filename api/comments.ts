@@ -75,7 +75,7 @@ export const postComment = async (photoId: string, message: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.postComment;
+      return response;
     })
     .catch((error) => {
       return {
@@ -108,7 +108,7 @@ export const postReplyThread = async (commentId: string, message: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.postReply;
+      return response;
     })
     .catch((error) => {
       return {

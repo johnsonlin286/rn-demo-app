@@ -17,7 +17,7 @@ export const fetchProfile = async (id: string) => {
   };
   return await API(reqBody)
     .then((response: any) => {
-      return response.profile;
+      return response;
     })
     .catch((error) => {
       return {
