@@ -2,7 +2,6 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
 import { fetchAllPosts, fetchPhoto } from "../api/posts";
 import Layout from "../components/Layout";
@@ -32,7 +31,6 @@ const DetailScreen = ({ route }: Props) => {
   const postId = useMemo(() => {
     return route?.params?.id;
   }, [route]);
-  const { isAuth } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
   const [data, setData] = useState<Array<DataType>>([]);
   const totalPost = useMemo(() => {
@@ -48,7 +46,7 @@ const DetailScreen = ({ route }: Props) => {
       const result = await fetchPhoto(postId);
       if (result.photo) {
         setData(() => [result.photo]);
-        fetchMore();
+        setCanloadmore(true);
       } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
         setAlert({ color: 'red', message: data.errors[0].message });
@@ -87,7 +85,7 @@ const DetailScreen = ({ route }: Props) => {
         renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
         onEndReached={fetchMore}
         onEndReachedThreshold={0.2}
-        ListFooterComponent={loading ? <Placeholder /> : null}
+        ListFooterComponent={canloadmore ? <Placeholder /> : null}
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
