@@ -53,13 +53,10 @@ function ProfileScreen({ navigation }: Props) {
 
   const fetchingUserPhoto = async () => {
     if (data.length >= totalPosts.current || !user) return;
-    setLoading(true);
     const result = await fetchUserPhotos(user?.id, data.length);
     if (result.data) {
       totalPosts.current = result.total;
-      if (result.data.length > 0) {
-        setData(prev => [...prev, ...result.data.reverse()]);
-      }
+      setData(prev => [...prev, ...result.data.reverse()]);
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
@@ -99,6 +96,15 @@ function ProfileScreen({ navigation }: Props) {
   return (
     <Layout>
       {
+        loading && (
+          <View style={styles.container}>
+            <ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />
+            <Placeholder />
+            <Placeholder />
+          </View>
+        )
+      }
+      {
         data && data.length > 0 ? (
           <>
             <FlatList
@@ -109,12 +115,12 @@ function ProfileScreen({ navigation }: Props) {
               onEndReachedThreshold={0.2}
               style={styles.container}
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />}
-              ListFooterComponent={loading ? <Placeholder /> : null}
+              ListFooterComponent={data.length >= totalPosts.current ? null : <Placeholder />}
             />
             <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
             <DeleteModal isVisible={deleteId ? true : false} deleting={deleting} onConfirm={deletingPost} onDismiss={() => setDeleteId(undefined)} />
           </>
-        ) : (
+        ) : !loading && (
           <View style={styles.container}>
             <ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />
             <View style={styles.containerEmpty}>

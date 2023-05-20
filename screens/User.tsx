@@ -9,7 +9,8 @@ import Layout from "../components/Layout";
 import PostItem from "../components/PostItem";
 import ProfileHeading from "../components/ProfileHeading";
 import CommentsSheet from "../components/CommentsSheet";
-import Placeholder from "../components/placeholder/PostItem";
+import HeadingPlaceholder from '../components/placeholder/ProfileHeading';
+import PostPlaceholder from "../components/placeholder/PostItem";
 import { UserType } from "../types/types";
 
 type RootStackParamList = {
@@ -47,11 +48,12 @@ function UserScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (!userId) return;
     const fetchingUserProfile = async () => {
+      setLoading(true);
       const result = await fetchProfile(userId);
       if (result.profile) {
         setUser(result.profile);
         navigation.setOptions({
-          title: result.name
+          title: result.profile.name
         });
       } else if (result.error && result.error !== undefined) {
         const { data } = result.error;
@@ -90,6 +92,15 @@ function UserScreen({ route, navigation }: Props) {
   return (
     <Layout>
       {
+        loading && (
+          <View style={styles.container}>
+            <HeadingPlaceholder />
+            <PostPlaceholder />
+            <PostPlaceholder />
+          </View>
+        )
+      }
+      {
         data && data.length > 0 ? (
           <>
             <FlatList
@@ -100,11 +111,11 @@ function UserScreen({ route, navigation }: Props) {
               onEndReachedThreshold={0.2}
               style={styles.container}
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} />}
-              ListFooterComponent={loading ? <Placeholder /> : null}
+              ListFooterComponent={data.length >= totalPosts.current ? null : <PostPlaceholder />}
             />
             <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
           </>
-        ) : (
+        ) : !loading && (
           <View style={styles.container}>
             <ProfileHeading userName={user?.name || ''} postCount={data.length} />
             <View style={styles.containerEmpty}>

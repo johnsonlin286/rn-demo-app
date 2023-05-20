@@ -83,7 +83,7 @@ const DetailScreen = ({ route }: Props) => {
         renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
         onEndReached={fetchMore}
         onEndReachedThreshold={0.2}
-        ListFooterComponent={data.length >= totalPost.current ? null : <Placeholder />}
+        ListFooterComponent={loading ? <Placeholder /> : null}
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
