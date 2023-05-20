@@ -113,7 +113,9 @@ function UserScreen({ route, navigation }: Props) {
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} />}
               ListFooterComponent={data.length >= totalPosts.current ? null : <PostPlaceholder />}
             />
-            <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            {
+              pickedPostId && <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            }
           </>
         ) : !loading && (
           <View style={styles.container}>

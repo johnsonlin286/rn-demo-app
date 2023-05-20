@@ -117,7 +117,9 @@ function ProfileScreen({ navigation }: Props) {
               ListHeaderComponent={<ProfileHeading userName={user?.name || ''} postCount={data.length} onLogoutPress={logoutToggle} isOwnProfile />}
               ListFooterComponent={data.length >= totalPosts.current ? null : <Placeholder />}
             />
-            <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            {
+              pickedPostId && <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            }
             <DeleteModal isVisible={deleteId ? true : false} deleting={deleting} onConfirm={deletingPost} onDismiss={() => setDeleteId(undefined)} />
           </>
         ) : !loading && (

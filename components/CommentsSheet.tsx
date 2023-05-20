@@ -32,23 +32,29 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const [photo, setPhoto] = useState<PhotoType | undefined>();
   const [comments, setComments] = useState<Array<CommentType>>([]);
   const totalComments = useRef(10);
-  const [fetching, setFetching] = useState(true);
+  const [fetching, setFetching] = useState(false);
   const [replying, setReplying] = useState<ReplyingType | undefined>();
   const [submiting, setSubmiting] = useState(false);
 
   useEffect(() => {
-    if (postId) fetchingComments(false);
+    fetchingComments(false);
   }, [postId]);
 
-  const fetchingComments = async (refatch: boolean) => {
-    if (comments.length >= totalComments.current || !postId) return;
+  const fetchingComments = async (loadmore: boolean) => {
+    if (!postId || comments.length >= totalComments.current || fetching) {
+      setFetching(false);
+      return;
+    };
     setFetching(true);
     const result = await fetchComments(postId);
     if (result.photo) setPhoto(result.photo);
     if (result.data) {
       totalComments.current = result.total;
-      setComments(prev => [...prev, ...result.data]);
-
+      if (!loadmore) {
+        setComments(result.data);
+      } else {
+        setComments(prev => [...prev, ...result.data]);
+      }
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
@@ -115,10 +121,6 @@ const CommentsSheet: React.FC<Props> = ({ id, onDismiss }) => {
   const dismissHandler = () => {
     setComments([]);
     onDismiss();
-  }
-
-  if (!postId) {
-    return null
   }
 
   return (

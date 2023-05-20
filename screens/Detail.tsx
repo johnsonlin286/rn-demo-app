@@ -94,7 +94,9 @@ const DetailScreen = ({ route }: Props) => {
               ListFooterComponent={loading ? <Placeholder /> : null}
               style={styles.listContainer}
             />
-            <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            {
+              pickedPostId && <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+            }
           </>
         )
       }
