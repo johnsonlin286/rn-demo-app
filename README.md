@@ -13,4 +13,4 @@ This app is only for my experimentation and learning purposes. The same web appl
 
 ## DEMO
 
-[Android](https://expo.dev/accounts/johnson286/projects/rn-demo-app/builds/7c0faae5-edf9-432b-b458-e911daff3cab)
+[Android](https://expo.dev/accounts/johnson286/projects/rn-demo-app/builds/35d0c839-f9f9-43de-a086-9fd97cae55cb)
