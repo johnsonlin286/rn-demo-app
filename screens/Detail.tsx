@@ -59,12 +59,10 @@ const DetailScreen = ({ route }: Props) => {
       return;
     };
     setLoading(true);
-    const result = await fetchAllPosts({ skip: data.length, exclude: postId });
+    const result = await fetchAllPosts({ skip: 0, exclude: postId });
     if (result.data) {
       totalPost.current = result.total;
-      if (result.data.length > 0) {
-        setData(prev => [...prev, ...result.data.reverse()]);
-      }
+      setData(prev => [...prev, ...result.data.reverse()]);
     } else if (result.error && result.error !== undefined) {
       const { data } = result.error;
       setAlert({ color: 'red', message: data.errors[0].message });
@@ -85,7 +83,7 @@ const DetailScreen = ({ route }: Props) => {
         renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
         onEndReached={fetchMore}
         onEndReachedThreshold={0.2}
-        ListFooterComponent={loading ? <Placeholder /> : null}
+        ListFooterComponent={data.length >= totalPost.current ? null : <Placeholder />}
         style={styles.listContainer}
       />
       <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />

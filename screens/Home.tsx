@@ -1,5 +1,6 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
 import { AuthContext } from "../store/context/authContext";
 import { AlertContext } from "../store/context/alertContext";
@@ -13,24 +14,40 @@ type PostItemType = {
   imageUrl: string,
 }
 
-function HomeScreen() {
+type RootTabStackParamList = {
+  Home: undefined
+}
+
+type Props = BottomTabScreenProps<RootTabStackParamList, 'Home'>
+
+function HomeScreen({ navigation }: Props) {
   const { user } = useContext(AuthContext);
   const { setAlert } = useContext(AlertContext);
   const totalPost = useRef(10);
   const [posts, setPosts] = useState<Array<PostItemType>>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const currentUser: string | null = useMemo(() => {
-    if (user) {
-      return user.id
-    } else return null
-  }, [user]);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (user === currentUser || user?.id === currentUser) return;
+      setCurrentUser(user ? user.id : null);
+      setPosts(() => []);
+      setLoading(true);
+    });
+    return unsubscribe
+  }, [navigation, user, currentUser]);
 
   useEffect(() => {
     fetching(true);
-  }, [currentUser]);
+  }, [posts]);
 
   const fetching = async (refatch?: boolean) => {
+    if (posts.length >= totalPost.current) {
+      setRefreshing(false);
+      return;
+    };
     setLoading(true);
     const result = await fetchAllPosts({ skip: refatch ? 0 : posts.length });
     if (result.data) {
@@ -51,10 +68,10 @@ function HomeScreen() {
   }
 
   const fetchMore = () => {
-    if (posts.length >= totalPost.current) {
+    if (posts.length === 0 || posts.length >= totalPost.current) {
       return;
     }
-    fetching();
+    fetching(false);
   }
 
   const renderPlaceholder = () => {
