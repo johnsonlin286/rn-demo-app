@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AlertContext } from "../store/context/alertContext";
@@ -55,7 +55,7 @@ const DetailScreen = ({ route }: Props) => {
   }, [postId]);
 
   const fetchMore = async () => {
-    if (data.length >= totalPost.current) {
+    if (data.length >= totalPost.current || loading) {
       return;
     };
     setLoading(true);
@@ -75,18 +75,29 @@ const DetailScreen = ({ route }: Props) => {
   return (
     <Layout>
       {
-        !data && <Placeholder />
+        data.length === 0 && (
+          <View style={styles.listContainer}>
+            <Placeholder />
+            <Placeholder />
+          </View>
+        )
       }
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
-        onEndReached={fetchMore}
-        onEndReachedThreshold={0.2}
-        ListFooterComponent={loading ? <Placeholder /> : null}
-        style={styles.listContainer}
-      />
-      <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+      {
+        data.length > 0 && (
+          <>
+            <FlatList
+              data={data}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => <PostItem data={item} onLoadComments={setPickedPostId} />}
+              onEndReached={fetchMore}
+              onEndReachedThreshold={0.2}
+              ListFooterComponent={loading ? <Placeholder /> : null}
+              style={styles.listContainer}
+            />
+            <CommentsSheet id={pickedPostId} onDismiss={() => setPickedPostId(undefined)} />
+          </>
+        )
+      }
     </Layout>
   );
 }
