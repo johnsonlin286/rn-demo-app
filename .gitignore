@@ -19,3 +19,5 @@ web-build/
 .env
 
 eas.json
+
+package-lock.json
